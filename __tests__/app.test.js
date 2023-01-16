@@ -4,6 +4,7 @@ const app = require("../app/app")
 const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data")
+const expectedTopics = require("../db/data/test-data/topics")
 
 beforeEach(() => {
     return seed(data)
@@ -52,7 +53,18 @@ describe("news-api", () => {
                         expect(topic).toHaveProperty("description")
                     })
                 })
-            })         
+            })     
+            test("the values for 'slug' and 'description' are retreived from the 'nc_news_test' database", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+                .then(({body}) => {
+                    const { topics } = body
+                    topics.forEach((topic, index) => {
+                        expect(topic).toEqual(expectedTopics[index])
+                    })
+                })
+            })       
         })
     })
 })
