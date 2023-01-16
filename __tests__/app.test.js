@@ -29,6 +29,18 @@ describe("news-api", () => {
                     expect(body).toHaveProperty("articles")
                 })
             })
+            test("the value of 'articles' is an array of objects", () => {
+                return request(app)
+                .get("/api/articles")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles instanceof Array).toBe(true)
+                    articles.forEach((element) => {
+                        expect(element instanceof Object).toBe(true)
+                    })
+                })
+            }) 
         })
     })
 })
