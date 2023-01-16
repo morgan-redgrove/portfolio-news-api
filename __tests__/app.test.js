@@ -28,7 +28,19 @@ describe("news-api", () => {
                 .then(({body}) => {
                     expect(body).toHaveProperty("topics")
                 })  
-            })           
+            })    
+            test("the value of 'topics' is an array of objects", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+                .then(({body}) => {
+                    const { topics } = body
+                    expect(topics instanceof Array).toBe(true)
+                    topics.forEach((element) => {
+                        expect(element instanceof Object).toBe(true)
+                    })
+                })
+            })       
         })
     })
 })
