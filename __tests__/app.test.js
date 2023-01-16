@@ -21,6 +21,14 @@ describe("news-api", () => {
                 .get("/api/topics")
                 .expect(200)
             })
+            test("responds with an object with a key of 'topics'", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body).toHaveProperty("topics")
+                })  
+            })           
         })
     })
 })
