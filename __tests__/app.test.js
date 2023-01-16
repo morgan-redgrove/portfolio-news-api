@@ -36,6 +36,7 @@ describe("news-api", () => {
                 .expect(200)
                 .then(({body}) => {
                     const { topics } = body
+                    expect(topics.length).toBeGreaterThan(0)
                     expect(topics instanceof Array).toBe(true)
                     topics.forEach((element) => {
                         expect(element instanceof Object).toBe(true)
@@ -48,6 +49,7 @@ describe("news-api", () => {
                 .expect(200)
                 .then(({body}) => {
                     const { topics } = body
+                    expect(topics.length).toBeGreaterThan(0)
                     topics.forEach((topic) => {
                         expect(topic).toHaveProperty("slug")
                         expect(topic).toHaveProperty("description")
@@ -60,6 +62,7 @@ describe("news-api", () => {
                 .expect(200)
                 .then(({body}) => {
                     const { topics } = body
+                    expect(topics.length).toBeGreaterThan(0)
                     topics.forEach((topic, index) => {
                         expect(topic).toEqual(expectedTopics[index])
                     })
