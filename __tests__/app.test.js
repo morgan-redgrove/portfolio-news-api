@@ -5,6 +5,7 @@ const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data")
 const comments = require("../db/data/test-data/comments")
+const expectedArticles = require("../db/data/test-data/articles")
 
 beforeEach(() => {
     return seed(data)
@@ -70,10 +71,29 @@ describe("news-api", () => {
                     const { articles } = body
                     expect(articles.length).toBeGreaterThan(0)
                     articles.forEach((article) => {
-                        expectedCount = comments.filter((comment) => {
+                        const expectedCount = comments.filter((comment) => {
                             return comment.article_id == article.article_id
                         }).length
                         expect(article.comment_count).toBe(expectedCount)
+                    })
+                })
+            })  
+            test("the values of 'title', 'topic', 'author', 'body', 'created_at' and 'article_img_url' are retreived from the 'nc_snack_database'", () => {
+                return request(app)
+                .get("/api/articles")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    articles.forEach((article, index) => {
+                        expect(article.title).toBe(expectedArticles[index].title)
+                        expect(article.topic).toBe(expectedArticles[index].topic)
+                        expect(article.author).toBe(expectedArticles[index].author)
+                        expect(article.body).toBe(expectedArticles[index].body)
+                        const time = Date(article.created_at)
+                        const expectedTime = Date(expectedArticles[index].created_at)
+                        expect(time).toBe(expectedTime)
+                        expect(article.article_img_url).toBe(expectedArticles[index].article_img_url)
                     })
                 })
             })  

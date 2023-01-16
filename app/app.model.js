@@ -14,7 +14,6 @@ const selectArticles = () => {
         ON articles.article_id = comment_count.article_id
     `)
     .then((result) => {
-        console.log(result.rows)
         return result.rows
     })
 }
