@@ -40,7 +40,19 @@ describe("news-api", () => {
                         expect(element instanceof Object).toBe(true)
                     })
                 })
-            })       
+            })  
+            test("each object in the 'topics' array has a key of 'slug' and 'description'", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+                .then(({body}) => {
+                    const { topics } = body
+                    topics.forEach((topic) => {
+                        expect(topic).toHaveProperty("slug")
+                        expect(topic).toHaveProperty("description")
+                    })
+                })
+            })         
         })
     })
 })
