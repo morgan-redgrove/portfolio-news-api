@@ -4,6 +4,7 @@ const app = require("../app/app")
 const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data")
+const comments = require("../db/data/test-data/comments")
 
 beforeEach(() => {
     return seed(data)
@@ -35,6 +36,7 @@ describe("news-api", () => {
                 .expect(200)
                 .then(({body}) => {
                     const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
                     expect(articles instanceof Array).toBe(true)
                     articles.forEach((element) => {
                         expect(element instanceof Object).toBe(true)
@@ -47,6 +49,7 @@ describe("news-api", () => {
                 .expect(200)
                 .then(({body}) => {
                     const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
                     articles.forEach((article) => {
                         expect(article).toHaveProperty("author")
                         expect(article).toHaveProperty("title")
@@ -56,6 +59,21 @@ describe("news-api", () => {
                         expect(article).toHaveProperty("votes")
                         expect(article).toHaveProperty("article_img_url")
                         expect(article).toHaveProperty("comment_count")
+                    })
+                })
+            })  
+            test("the value of 'comment_count' is equal the number of comments for a given article", () => {
+                return request(app)
+                .get("/api/articles")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    articles.forEach((article) => {
+                        expectedCount = comments.filter((comment) => {
+                            return comment.article_id == article.article_id
+                        }).length
+                        expect(article.comment_count).toBe(expectedCount)
                     })
                 })
             })  

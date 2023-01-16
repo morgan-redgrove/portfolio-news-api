@@ -3,7 +3,7 @@ const db = require("../db/connection")
 const selectArticles = () => {
     return db.query(`
         SELECT articles.*, 
-        COALESCE (comment_count.count, 0) AS comment_count
+        COALESCE (comment_count.count :: INT, 0) AS comment_count
         FROM articles
         LEFT OUTER JOIN
         (
