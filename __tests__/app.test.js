@@ -78,6 +78,7 @@ describe("news-api", () => {
                     expect(body).toHaveProperty("comments")
                     const { comments } = body
                     expect(comments instanceof Array).toBe(true)
+                    expect(comments.length).toBeGreaterThan(0)
                     comments.forEach((element) => {
                         expect(element instanceof Object).toBe(true)
                     })
@@ -116,6 +117,16 @@ describe("news-api", () => {
                 .then(({body}) => {
                     const { msg } = body
                     expect(msg).toBe("bad request")
+                })
+            })
+            test("the 'articles' array is returned in descending date order", () => {
+                return request(app)
+                .get("/api/articles/1/comments")
+                .expect(200)
+                .then(({body}) => {
+                    const { comments } = body
+                    expect(comments.length).toBeGreaterThan(0)
+                    expect(comments).toBeSortedBy("created_at", {descending: true})
                 })
             })
         })  
