@@ -1,11 +1,17 @@
-const { selectTopics } = require("./app.model")
+const { selectTopics, selectArticles } = require("./app.model")
 
 const getTopics = (request, response) => {
     selectTopics()
     .then((topics) => {
         response.status(200).send({topics})
     })
-
 }
 
-module.exports = { getTopics }
+const getArticles = (request, response) => {
+    selectArticles()
+    .then((articles) => {
+        response.status(200).send({articles}) 
+    })
+}
+
+module.exports = { getTopics, getArticles }
