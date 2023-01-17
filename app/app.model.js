@@ -9,7 +9,10 @@ const selectTopics = () => {
     })
 }
 
-const selectArticleCommentsById = (article_id) => {
+const selectCommentsByArticleId = (article_id) => {
+    if (/[^\d]/g.test(article_id)) {
+        return Promise.reject ({status: 400, msg: "bad request"})
+    }
     return db.query(`
     SELECT * FROM comments
     WHERE article_id = $1
@@ -23,4 +26,4 @@ const selectArticleCommentsById = (article_id) => {
     })
 }
 
-module.exports = { selectTopics, selectArticleCommentsById }
+module.exports = { selectTopics, selectCommentsByArticleId }

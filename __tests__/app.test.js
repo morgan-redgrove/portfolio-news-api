@@ -109,6 +109,15 @@ describe("news-api", () => {
                     expect(msg).toBe("not found")
                 })
             })
+            test("responds with status code 400 'bad request' when provided an article_id that is not a number", () => {
+                return request(app)
+                .get("/api/articles/not-a-number/comments")
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+            })
         })  
     })
 })
