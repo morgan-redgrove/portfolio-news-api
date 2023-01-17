@@ -7,11 +7,14 @@ const getTopics = (request, response) => {
     })
 }
 
-const getArticleCommentsById = (request, response) => {
+const getArticleCommentsById = (request, response, next) => {
     const { article_id } = request.params
     selectArticleCommentsById(article_id)
     .then((comments) => {
         response.status(200).send({comments})
+    })
+    .catch((err) => {
+        next(err)
     })   
 }
 

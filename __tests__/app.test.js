@@ -100,6 +100,15 @@ describe("news-api", () => {
                     })
                 })
             })
+            test("responds with status code 404 'not found' if there are no comments with a matching article_id", () => {
+                return request(app)
+                .get("/api/articles/9999/comments")
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
         })  
     })
 })

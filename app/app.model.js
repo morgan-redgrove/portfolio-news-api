@@ -16,6 +16,9 @@ const selectArticleCommentsById = (article_id) => {
     `,
     [article_id])
     .then((result) => {
+        if (!result.rows.length) {
+            return Promise.reject({status: 404, msg: "not found"})
+        }
         return result.rows
     })
 }
