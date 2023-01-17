@@ -85,18 +85,30 @@ describe("news-api", () => {
                 .then(({body}) => {
                     const { articles } = body
                     expect(articles.length).toBeGreaterThan(0)
-                    articles.forEach((article, index) => {
-                        expect(article.title).toBe(expectedArticles[index].title)
-                        expect(article.topic).toBe(expectedArticles[index].topic)
-                        expect(article.author).toBe(expectedArticles[index].author)
-                        expect(article.body).toBe(expectedArticles[index].body)
-                        const time = Date(article.created_at)
-                        const expectedTime = Date(expectedArticles[index].created_at)
-                        expect(time).toBe(expectedTime)
-                        expect(article.article_img_url).toBe(expectedArticles[index].article_img_url)
+
+                    valueStrings = expectedArticles.map((article) => {
+                        const { title, topic, author, body, created_at, article_img_url } = article
+                        return `${title},${topic},${author},${body},${Date(created_at)},${article_img_url}`
                     })
+
+                    articles.forEach((article) => {
+                        const { title, topic, author, body, created_at, article_img_url } = article
+                        const valueString = `${title},${topic},${author},${body},${Date(created_at)},${article_img_url}`
+                        expect(valueStrings.includes(valueString)).toBe(true)
+                    })
+
                 })
-            })  
+            }) 
+            test("the 'articles' array is returned in descending date order", () => {
+                return request(app)
+                .get("/api/articles")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    expect(articles).toBeSortedBy("created_at", {descending: true})
+                })
+            }) 
         })
     })
 })

@@ -12,6 +12,7 @@ const selectArticles = () => {
         GROUP BY article_id
         ) comment_count
         ON articles.article_id = comment_count.article_id
+        ORDER BY articles.created_at DESC
     `)
     .then((result) => {
         return result.rows
