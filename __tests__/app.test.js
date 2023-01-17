@@ -69,5 +69,17 @@ describe("news-api", () => {
                 })
             })       
         })
+        describe("GET /api/articles/:article_id", () => {
+            test("responds with status code 200 and an object in expected format", () => {
+                return request(app)
+                .get("/api/articles/1")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body).toHaveProperty("article")
+                    const { article } = body
+                    expect(article instanceof Object).toBe(true)
+                })
+            })
+        })
     })
 })

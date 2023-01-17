@@ -5,7 +5,10 @@ const getTopics = (request, response) => {
     .then((topics) => {
         response.status(200).send({topics})
     })
-
 }
 
-module.exports = { getTopics }
+const getArticleById = (request, response) => {
+    response.status(200).send({article: {}})
+}
+
+module.exports = { getTopics, getArticleById }
