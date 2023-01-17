@@ -13,10 +13,19 @@ const selectArticles = () => {
         ) comment_count
         ON articles.article_id = comment_count.article_id
         ORDER BY articles.created_at DESC
+        `)
+    .then((result) => {
+        return result.rows
+    })
+}
+
+const selectTopics = () => {
+    return db.query(`
+        SELECT * FROM topics
     `)
     .then((result) => {
         return result.rows
     })
 }
 
-module.exports = { selectArticles }
+module.exports = { selectTopics, selectArticles }

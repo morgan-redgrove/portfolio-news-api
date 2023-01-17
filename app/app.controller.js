@@ -1,4 +1,11 @@
-const { selectArticles } = require("./app.model")
+const { selectTopics, selectArticles } = require("./app.model")
+
+const getTopics = (request, response) => {
+    selectTopics()
+    .then((topics) => {
+        response.status(200).send({topics})
+    })
+}
 
 const getArticles = (request, response) => {
     selectArticles()
@@ -7,4 +14,4 @@ const getArticles = (request, response) => {
     })
 }
 
-module.exports = { getArticles }
+module.exports = { getTopics, getArticles }

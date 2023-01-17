@@ -4,8 +4,10 @@ const app = require("../app/app")
 const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data")
+const expectedTopics = require("../db/data/test-data/topics")
 const comments = require("../db/data/test-data/comments")
 const expectedArticles = require("../db/data/test-data/articles")
+
 
 beforeEach(() => {
     return seed(data)
@@ -109,6 +111,59 @@ describe("news-api", () => {
                     expect(articles).toBeSortedBy("created_at", {descending: true})
                 })
             }) 
+        })
+        describe("GET /api/topics", () => {
+            test("responds with status code 200", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+            })
+            test("responds with an object with a key of 'topics'", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body).toHaveProperty("topics")
+                })  
+            })    
+            test("the value of 'topics' is an array of objects", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+                .then(({body}) => {
+                    const { topics } = body
+                    expect(topics.length).toBeGreaterThan(0)
+                    expect(topics instanceof Array).toBe(true)
+                    topics.forEach((element) => {
+                        expect(element instanceof Object).toBe(true)
+                    })
+                })
+            })  
+            test("each object in the 'topics' array has a key of 'slug' and 'description'", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+                .then(({body}) => {
+                    const { topics } = body
+                    expect(topics.length).toBeGreaterThan(0)
+                    topics.forEach((topic) => {
+                        expect(topic).toHaveProperty("slug")
+                        expect(topic).toHaveProperty("description")
+                    })
+                })
+            })     
+            test("the values for 'slug' and 'description' are retreived from the 'nc_news_test' database", () => {
+                return request(app)
+                .get("/api/topics")
+                .expect(200)
+                .then(({body}) => {
+                    const { topics } = body
+                    expect(topics.length).toBeGreaterThan(0)
+                    topics.forEach((topic, index) => {
+                        expect(topic).toEqual(expectedTopics[index])
+                    })
+                })
+            })       
         })
     })
 })
