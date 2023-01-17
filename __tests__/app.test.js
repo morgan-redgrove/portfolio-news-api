@@ -69,5 +69,20 @@ describe("news-api", () => {
                 })
             })       
         })
+        describe("GET /api/articles/:article_id/comments", () => {
+            test("responds with status code 200 and an object in expected format", () => {
+                return request(app)
+                .get("/api/articles/1/comments")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body).toHaveProperty("comments")
+                    const { comments } = body
+                    expect(comments instanceof Array).toBe(true)
+                    comments.forEach((element) => {
+                        expect(element instanceof Object).toBe(true)
+                    })
+                })
+            })
+        })  
     })
 })
