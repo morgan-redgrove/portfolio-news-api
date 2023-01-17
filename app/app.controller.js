@@ -1,4 +1,4 @@
-const { selectTopics } = require("./app.model")
+const { selectTopics, insertComment } = require("./app.model")
 
 const getTopics = (request, response) => {
     selectTopics()
@@ -9,7 +9,12 @@ const getTopics = (request, response) => {
 }
 
 const postComment = (request, response) => {
-    response.status(201).send({comment: {}})
+    const { username, body }  = request.body
+    const { article_id } = request.params
+    insertComment(username, body, article_id)
+    .then((comment) => {
+        response.status(201).send({comment})
+    })
 }
 
 module.exports = { getTopics, postComment }

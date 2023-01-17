@@ -75,13 +75,28 @@ describe("news-api", () => {
             test("responds with status code 201 and the posted object in expected format", () => {
                 return request(app)
                 .post("/api/articles/1/comments")
-                .send({})
+                .send({"username": "butter_bridge", "body": "test"})
                 .expect(201)
                 .then(({body}) => {
                     expect(body).toHaveProperty("comment")
                     const { comment } = body
                     expect(comment instanceof Object).toBe(true)
                 }) 
+            })
+            test("the 'comment' object has the expected keys and value types", () => {
+                return request(app)
+                .post("/api/articles/1/comments")
+                .send({"username": "icellusedkars", "body": "test2"})
+                .expect(201)
+                .then(({body}) => {
+                    const { comment } = body
+                    expect(comment.comment_id).toEqual(expect.any(Number))
+                    expect(comment.votes).toEqual(expect.any(Number))
+                    expect(comment.created_at).toEqual(expect.any(String))
+                    expect(comment.author).toEqual(expect.any(String))
+                    expect(comment.body).toEqual(expect.any(String))
+                    expect(comment.article_id).toEqual(expect.any(Number))
+                })
             })
         })
     })
