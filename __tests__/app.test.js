@@ -83,6 +83,23 @@ describe("news-api", () => {
                     })
                 })
             })
+            test("each object in the 'comments' array has the expected keys and value types", () => {
+                return request(app)
+                .get("/api/articles/1/comments")
+                .expect(200)
+                .then(({body}) => {
+                    const { comments } = body
+                    expect(comments.length).toBeGreaterThan(0)
+                    comments.forEach((comment) => {
+                        expect(comment.comment_id).toEqual(expect.any(Number))
+                        expect(comment.votes).toEqual(expect.any(Number))
+                        expect(comment.created_at).toEqual(expect.any(String))
+                        expect(comment.author).toEqual(expect.any(String))
+                        expect(comment.body).toEqual(expect.any(String))
+                        expect(comment.article_id).toEqual(expect.any(Number))
+                    })
+                })
+            })
         })  
     })
 })

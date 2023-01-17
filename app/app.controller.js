@@ -1,4 +1,4 @@
-const { selectTopics } = require("./app.model")
+const { selectTopics, selectArticleCommentsById } = require("./app.model")
 
 const getTopics = (request, response) => {
     selectTopics()
@@ -8,7 +8,11 @@ const getTopics = (request, response) => {
 }
 
 const getArticleCommentsById = (request, response) => {
-    response.status(200).send({comments: [{}]})
+    const { article_id } = request.params
+    selectArticleCommentsById(article_id)
+    .then((comments) => {
+        response.status(200).send({comments})
+    })   
 }
 
 module.exports = { getTopics, getArticleCommentsById }
