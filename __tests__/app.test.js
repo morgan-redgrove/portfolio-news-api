@@ -70,4 +70,19 @@ describe("news-api", () => {
             })       
         })
     })
+    describe("POST requests", () => {
+        describe("POST /api/articles/:article_id/comments", () => {
+            test("responds with status code 201 and the posted object in expected format", () => {
+                return request(app)
+                .post("/api/articles/1/comments")
+                .send({})
+                .expect(201)
+                .then(({body}) => {
+                    expect(body).toHaveProperty("comment")
+                    const { comment } = body
+                    expect(comment instanceof Object).toBe(true)
+                }) 
+            })
+        })
+    })
 })

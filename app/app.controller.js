@@ -8,4 +8,8 @@ const getTopics = (request, response) => {
 
 }
 
-module.exports = { getTopics }
+const postComment = (request, response) => {
+    response.status(201).send({comment: {}})
+}
+
+module.exports = { getTopics, postComment }
