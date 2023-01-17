@@ -96,6 +96,15 @@ describe("news-api", () => {
                     expect(article.article_img_url).toEqual(expect.any(String))
                 })
             })
+            test("responds with status code 404 'not found' when no article found with article_id", () => {
+                return request(app)
+                .get("/api/articles/9999")
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
         })
     })
 })

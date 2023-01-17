@@ -16,6 +16,9 @@ const selectArticleByID = (article_id) => {
     `,
     [article_id])
     .then((result) => {
+        if (!result.rows[0]) {
+            return Promise.reject ({status: 404, msg: "not found"})
+        }
         return result.rows[0]
     })
 }
