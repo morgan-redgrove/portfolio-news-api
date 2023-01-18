@@ -25,20 +25,6 @@ describe("news-api", () => {
                 .get("/api/topics")
                 .expect(200)
                 .then(({body}) => {
-                    expect(body).toHaveProperty("topics")
-                    const { topics } = body
-                    expect(topics instanceof Array).toBe(true)
-                    expect(topics.length).toBeGreaterThan(0)
-                    topics.forEach((element) => {
-                        expect(element instanceof Object).toBe(true)
-                    })
-                })  
-            })
-            test("each object in the 'topics' array has the expected keys and value types", () => {
-                return request(app)
-                .get("/api/topics")
-                .expect(200)
-                .then(({body}) => {
                     const { topics } = body
                     expect(topics.length).toBeGreaterThan(0)
                     topics.forEach((topic) => {
@@ -50,21 +36,6 @@ describe("news-api", () => {
         })
         describe("GET /api/articles", () => {
             test("responds with status code 200 and an object in expected format", () => {
-                return request(app)
-                .get("/api/articles")
-                .expect(200)
-                .then(({body}) => {
-                    expect(body).toHaveProperty("articles")
-                    const { articles } = body
-                    expect(articles instanceof Array).toBe(true)
-                    expect(articles.length).toBeGreaterThan(0)
-                    articles.forEach((element) => {
-                        expect(element instanceof Object).toBe(true)
-                    })
-                })
-                
-            })
-            test("each object in the 'articles' array has the expected keys and value types", () => {
                 return request(app)
                 .get("/api/articles")
                 .expect(200)
@@ -109,19 +80,9 @@ describe("news-api", () => {
                 })
 
             }) 
-          })
-          describe("GET /api/articles/:article_id", () => {
+        })
+        describe("GET /api/articles/:article_id", () => {
             test("responds with status code 200 and an object in expected format", () => {
-                return request(app)
-                .get("/api/articles/1")
-                .expect(200)
-                .then(({body}) => {
-                    expect(body).toHaveProperty("article")
-                    const { article } = body
-                    expect(article instanceof Object).toBe(true)
-                })
-            })
-            test("the 'article' object has the correct keys and value types", () => {
                 return request(app)
                 .get("/api/articles/1")
                 .expect(200)
@@ -156,5 +117,52 @@ describe("news-api", () => {
                 })
             })
         })
+        describe("GET /api/articles/:article_id/comments", () => {
+            test("responds with status code 200 and an object in expected format", () => {
+                return request(app)
+                .get("/api/articles/1/comments")
+                .expect(200)
+                .then(({body}) => {
+                    const { comments } = body
+                    expect(comments.length).toBeGreaterThan(0)
+                    comments.forEach((comment) => {
+                        expect(comment.comment_id).toEqual(expect.any(Number))
+                        expect(comment.votes).toEqual(expect.any(Number))
+                        expect(comment.created_at).toEqual(expect.any(String))
+                        expect(comment.author).toEqual(expect.any(String))
+                        expect(comment.body).toEqual(expect.any(String))
+                        expect(comment.article_id).toEqual(expect.any(Number))
+                    })
+                })
+            })
+            test("the 'comments' array is returned in descending date order", () => {
+                return request(app)
+                .get("/api/articles/1/comments")
+                .expect(200)
+                .then(({body}) => {
+                    const { comments } = body
+                    expect(comments.length).toBeGreaterThan(0)
+                    expect(comments).toBeSortedBy("created_at", {descending: true})
+                })
+            })
+            test("responds with status code 404 'not found' if there are no comments with a matching article_id", () => {
+                return request(app)
+                .get("/api/articles/9999/comments")
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
+            test("responds with status code 400 'bad request' when provided an article_id that is not a number", () => {
+                return request(app)
+                .get("/api/articles/not-a-number/comments")
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+            })
+        })  
     })
 })
