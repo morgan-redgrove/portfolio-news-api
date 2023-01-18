@@ -26,9 +26,6 @@ const selectArticles = () => {
 }
 
 const selectArticleByID = (article_id) => {
-    if (/[^\d]/g.test(article_id)) {
-        return Promise.reject ({status: 400, msg: "bad request"})
-    }
     return db.query(`
     SELECT * FROM articles
     WHERE article_id = $1
@@ -43,9 +40,6 @@ const selectArticleByID = (article_id) => {
 }
 
 const selectCommentsByArticleId = (article_id) => {
-    if (/[^\d]/g.test(article_id)) {
-        return Promise.reject ({status: 400, msg: "bad request"})
-    }
     return db.query(`
     SELECT * FROM comments
     WHERE article_id = $1
