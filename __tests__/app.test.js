@@ -229,20 +229,20 @@ describe("news-api", () => {
                     .patch("/api/articles/1")
                     .send({inc_votes: "not-a-number"})
                     .expect(400)
-                })
-                .then(({body}) => {
-                    const { msg } = body
-                    expect(msg).toBe("bad request")
+                    .then(({body}) => {
+                        const { msg } = body
+                        expect(msg).toBe("bad request")
+                    })
                 })
             })
-            test("responds with status code 422 'unprocessable entity' when provided an object without the key 'inc_votes'", () => {
+            test("responds with status code 400 'bad request' if not provided with the key 'inc_votes'", () => {
                 return request(app)
                 .patch("/api/articles/1")
                 .send({})
-                .expect(422)
+                .expect(400)
                 .then(({body}) => {
                     const { msg } = body
-                    expect(msg).toBe("unprocessable entity")
+                    expect(msg).toBe("bad request")
                 })
             })       
         })

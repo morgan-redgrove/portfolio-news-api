@@ -26,13 +26,16 @@ app.use((err,request, response, next) => {
 
 app.use((err,request, response, next) => {
     const { code } = err
-    if (code === "22P02") {
+    if (code === "22P02" || code === "23502") {
         response.status(400).send({msg: "bad request"})
-    } else if ( code === "23502") {
-        response.status(422).send({msg: "unprocessable entity"})
     } else {
         next(err)
     }
+})
+
+app.use((err,request, response, next) => {
+    console.log(err)
+    response.status(500).send({ msg: 'Internal Server Error' })
 })
 
 module.exports = app
