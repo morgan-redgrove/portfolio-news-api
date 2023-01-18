@@ -184,6 +184,27 @@ describe("news-api", () => {
                     expect(article.article_img_url).toEqual(expect.any(String))
                 })
             })
+            test("increments the article votes by the correct amount", () => {
+                let previousVotes
+
+                return request(app)
+                .get("/api/articles/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { votes } = body.article
+                    previousVotes = votes
+                })
+                .then(() => {
+                    return request(app)
+                    .patch("/api/articles/1")
+                    .send({inc_votes: 100})
+                    .expect(201)
+                    .then(({body}) => {
+                        const { votes } = body.article
+                        expect(votes).toBe(previousVotes + 100)
+                     })
+                })
+            })
             test("responds with status code 404 'not found' if there are no articles with a matching article_id", () => {
                 return request(app)
                 .patch("/api/articles/9999")
