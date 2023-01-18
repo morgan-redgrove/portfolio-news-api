@@ -118,6 +118,16 @@ describe("news-api", () => {
                     expect(msg).toBe("bad request")
                 })
             })
+            test("responds with status code 422 'unprocessable entity' when provided a username that doesn't exist", () => {
+                return request(app)
+                .post("/api/articles/1/comments")
+                .send({"username": "not-a-user", "body": "test5"})
+                .expect(422)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("unprocessable entity")
+                })
+            })
         })
     })
 })
