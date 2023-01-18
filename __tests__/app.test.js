@@ -166,7 +166,7 @@ describe("news-api", () => {
         })  
     })
     describe("PATCH requests", () => {
-        describe.only("PATCH /api/articles/:article_id", () => {
+        describe("PATCH /api/articles/:article_id", () => {
             test("responds with status code 201 and the patched object in expected format", () => {
                 return request(app)
                 .patch("/api/articles/1")
@@ -184,7 +184,7 @@ describe("news-api", () => {
                     expect(article.article_img_url).toEqual(expect.any(String))
                 })
             })
-            test("responds with status code 404 'not found' if there are no comments with a matching article_id", () => {
+            test("responds with status code 404 'not found' if there are no articles with a matching article_id", () => {
                 return request(app)
                 .patch("/api/articles/9999")
                 .send({inc_votes: 100})
@@ -212,6 +212,16 @@ describe("news-api", () => {
                 .then(({body}) => {
                     const { msg } = body
                     expect(msg).toBe("bad request")
+                })
+            })
+            test("responds with status code 422 'unprocessable entity' when provided an object without the key 'inc_votes'", () => {
+                return request(app)
+                .patch("/api/articles/1")
+                .send({})
+                .expect(422)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("unprocessable entity")
                 })
             })       
         })

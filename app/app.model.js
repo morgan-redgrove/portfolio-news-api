@@ -82,7 +82,6 @@ const updateArticlebyID = (inc_votes, article_id) => {
             [inc_votes, article_id])
     })
     .then((result) => {
-        console.log(result.rows[0])
         return result.rows[0]
     })   
 }

@@ -16,7 +16,6 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
 app.patch("/api/articles/:article_id", patchArticleById)
 
 app.use((err,request, response, next) => {
-    console.log(err)
     const { status, msg } = err
     if (status && msg) {
        response.status(status).send({msg})   
@@ -29,6 +28,8 @@ app.use((err,request, response, next) => {
     const { code } = err
     if (code === "22P02") {
         response.status(400).send({msg: "bad request"})
+    } else if ( code === "23502") {
+        response.status(422).send({msg: "unprocessable entity"})
     } else {
         next(err)
     }
