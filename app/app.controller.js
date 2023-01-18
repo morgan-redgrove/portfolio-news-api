@@ -8,12 +8,15 @@ const getTopics = (request, response) => {
 
 }
 
-const postComment = (request, response) => {
+const postComment = (request, response, next) => {
     const { username, body }  = request.body
     const { article_id } = request.params
     insertComment(username, body, article_id)
     .then((comment) => {
         response.status(201).send({comment})
+    })
+    .catch((err) => {
+        next(err)
     })
 }
 

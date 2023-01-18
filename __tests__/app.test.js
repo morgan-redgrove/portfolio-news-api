@@ -98,6 +98,16 @@ describe("news-api", () => {
                     expect(comment.article_id).toEqual(expect.any(Number))
                 })
             })
+            test("responds with status code 404 'not found' if no article found with article_id", () => {
+                return request(app)
+                .post("/api/articles/9999/comments")
+                .send({"username": "rogersop", "body": "test3"})
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
         })
     })
 })

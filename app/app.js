@@ -8,4 +8,13 @@ app.get("/api/topics", getTopics)
 
 app.post("/api/articles/:article_id/comments", postComment)
 
+app.use((err,request, response, next) => {
+    const { status, msg } = err
+    if (status && msg) {
+       response.status(status).send({msg})   
+    } else {
+        next(err)
+    }
+})
+
 module.exports = app
