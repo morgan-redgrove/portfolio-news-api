@@ -78,17 +78,6 @@ describe("news-api", () => {
                 .send({"username": "butter_bridge", "body": "test"})
                 .expect(201)
                 .then(({body}) => {
-                    expect(body).toHaveProperty("comment")
-                    const { comment } = body
-                    expect(comment instanceof Object).toBe(true)
-                }) 
-            })
-            test("the 'comment' object has the expected keys and value types", () => {
-                return request(app)
-                .post("/api/articles/1/comments")
-                .send({"username": "icellusedkars", "body": "test2"})
-                .expect(201)
-                .then(({body}) => {
                     const { comment } = body
                     expect(comment.comment_id).toEqual(expect.any(Number))
                     expect(comment.votes).toEqual(expect.any(Number))
