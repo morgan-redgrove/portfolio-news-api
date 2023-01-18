@@ -165,4 +165,25 @@ describe("news-api", () => {
             })
         })  
     })
+    describe("PATCH requests", () => {
+        describe.only("PATCH /api/articles/:article_id", () => {
+            test("responds with status code 201 and the patched object in expected format", () => {
+                return request(app)
+                .patch("/api/articles/1")
+                .send({newVote: 100})
+                .expect(201)
+                .then(({body}) => {
+                    const { article } = body
+                    expect(article.author).toEqual(expect.any(String))
+                    expect(article.title).toEqual(expect.any(String))
+                    expect(article.article_id).toEqual(expect.any(Number))
+                    expect(article.body).toEqual(expect.any(String))
+                    expect(article.topic).toEqual(expect.any(String))
+                    expect(article.created_at).toEqual(expect.any(String))
+                    expect(article.votes).toEqual(expect.any(Number))
+                    expect(article.article_img_url).toEqual(expect.any(String))
+                })
+            })           
+        })
+    })
 })
