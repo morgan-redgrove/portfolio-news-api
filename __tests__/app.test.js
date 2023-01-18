@@ -179,6 +179,28 @@ describe("news-api", () => {
                     expect(comment.article_id).toEqual(expect.any(Number))
                 })
             })
+            test("posts the new comment to the database", () => {
+                const sentObj= {"username": "icellusedkars", "body": "test2"}
+
+                return request(app)
+                .post("/api/articles/1/comments")
+                .send(sentObj)
+                .expect(201)
+                .then(() => {
+                    return request(app)
+                    .get("/api/articles/1/comments")
+                    .expect(200)
+                    .then(({ body }) => {
+                        const { comments } = body
+                        const { username: sentUsername, body: sentBody} = sentObj
+                        const includesComment = comments.some((comment) => {
+                            const { author, body } = comment
+                            return author === sentUsername && body === sentBody
+                        })
+                        expect(includesComment).toBe(true)
+                    })
+                })
+            })
             test("responds with status code 404 'not found' if no article found with article_id", () => {
                 return request(app)
                 .post("/api/articles/9999/comments")
@@ -189,24 +211,44 @@ describe("news-api", () => {
                     expect(msg).toBe("not found")
                 })
             })
+            test("responds with status code 404 'not found' if no user found with username", () => {
+                return request(app)
+                .post("/api/articles/1/comments")
+                .send({"username": "not-a-user", "body": "test4"})
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
             test("responds with status code 400 'bad request' when provided an article_id that is not a number", () => {
                 return request(app)
                 .post("/api/articles/not-a-number/comments")
-                .send({"username": "lurker", "body": "test4"})
+                .send({"username": "lurker", "body": "test5"})
                 .expect(400)
                 .then(({body}) => {
                     const { msg } = body
                     expect(msg).toBe("bad request")
                 })
             })
-            test("responds with status code 422 'unprocessable entity' when provided a username that doesn't exist", () => {
+            test("responds with status code 400 'bad request' if not provided with keys of 'username' and 'body'", () => {
                 return request(app)
                 .post("/api/articles/1/comments")
-                .send({"username": "not-a-user", "body": "test5"})
-                .expect(422)
+                .send({"username": "butter_bridge"})
+                .expect(400)
                 .then(({body}) => {
                     const { msg } = body
-                    expect(msg).toBe("unprocessable entity")
+                    expect(msg).toBe("bad request")
+                })
+                .then(() => {
+                    return request(app)
+                    .post("/api/articles/1/comments")
+                    .send({"body": "test6"})
+                    .expect(400)
+                    .then(({body}) => {
+                        const { msg } = body
+                        expect(msg).toBe("bad request")
+                    })
                 })
             })
         })
