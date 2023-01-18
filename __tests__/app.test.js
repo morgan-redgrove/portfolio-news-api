@@ -193,6 +193,26 @@ describe("news-api", () => {
                     const { msg } = body
                     expect(msg).toBe("not found")
                 })
+            })
+            test("responds with status code 400 'bad request' when provided an article_id or inc_votes that is not a number", () => {
+                return request(app)
+                .patch("/api/articles/not-a-number")
+                .send({inc_votes: 100})
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+                .then(() => {
+                    return request(app)
+                    .patch("/api/articles/1")
+                    .send({inc_votes: "not-a-number"})
+                    .expect(400)
+                })
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
             })       
         })
     })
