@@ -55,20 +55,36 @@ const selectCommentsByArticleId = (article_id) => {
     })
 }
 
-const updateArticlebyID = (newVote, article_id) => {
-    return db.query(`
-        UPDATE articles
-        SET
-            votes = votes + $1
-        WHERE article_id = $2
-        RETURNING *
-    `, 
-    [newVote, article_id])
+const checkIfExists = (table, column, value) => {
+    const queryString = format(`
+        SELECT * FROM %I
+        WHERE %I = $1
+    `, table, column)
 
+    return db.query(queryString, [value])
+    .then((result) => {
+        if (!result.rows.length) {
+            return Promise.reject({ status: 404, msg: 'not found' })
+        }
+    })
+}
+
+const updateArticlebyID = (inc_votes, article_id) => {
+    return checkIfExists("articles", "article_id", article_id)
+    .then (() => {
+        return db.query(`
+                UPDATE articles
+                SET
+                votes = votes + $1
+                WHERE article_id = $2
+                RETURNING *
+            `, 
+            [inc_votes, article_id])
+    })
     .then((result) => {
         console.log(result.rows[0])
         return result.rows[0]
-    })
+    })   
 }
 
 module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, updateArticlebyID }

@@ -37,12 +37,15 @@ const getCommentsByArticleId = (request, response, next) => {
     })   
 }
 
-const patchArticleById = (request, response) => {
-    const { newVote }  = request.body
+const patchArticleById = (request, response, next) => {
+    const { inc_votes }  = request.body
     const { article_id } = request.params
-    updateArticlebyID(newVote, article_id)
+    updateArticlebyID(inc_votes, article_id)
     .then((article) => {
         response.status(201).send({article})
+    })
+    .catch((err) => {
+        next(err)
     })
 }
 

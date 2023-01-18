@@ -170,7 +170,7 @@ describe("news-api", () => {
             test("responds with status code 201 and the patched object in expected format", () => {
                 return request(app)
                 .patch("/api/articles/1")
-                .send({newVote: 100})
+                .send({inc_votes: 100})
                 .expect(201)
                 .then(({body}) => {
                     const { article } = body
@@ -183,7 +183,17 @@ describe("news-api", () => {
                     expect(article.votes).toEqual(expect.any(Number))
                     expect(article.article_img_url).toEqual(expect.any(String))
                 })
-            })           
+            })
+            test("responds with status code 404 'not found' if there are no comments with a matching article_id", () => {
+                return request(app)
+                .patch("/api/articles/9999")
+                .send({inc_votes: 100})
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })       
         })
     })
 })
