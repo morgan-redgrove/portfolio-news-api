@@ -17,4 +17,13 @@ app.use((err,request, response, next) => {
     }
 })
 
+app.use((err,request, response, next) => {
+    const { code } = err
+    if (code === "22P02") {
+        response.status(400).send({msg: "bad request"})
+    } else {
+        next(err)
+    }
+})
+
 module.exports = app
