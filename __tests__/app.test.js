@@ -350,4 +350,41 @@ describe("news-api", () => {
             })       
         })
     })
+    describe("DELETE requests", () => {
+        describe("DELETE /api/comments/:comment_id", () => {
+            test("responds with status code 204", () => {
+                return request(app)
+                .delete("/api/comments/1")
+                .expect(204)
+            })
+            test("deletes the comment from the database", () => {
+                return request(app)
+                .delete("/api/comments/1")
+                .expect(204)
+                .then(() => {
+                    return request(app)
+                    .get("/api/comments/1")
+                    .expect(404)
+                })
+            })
+            test("responds with status code 404 'not found' if there are not comments with a matching comment_id", () => {
+                return request(app)
+                .delete("/api/comments/9999")
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
+            test("responds with status code 400 'bad request' when provided an comment_id that is not a number", () => {
+                return request(app)
+                .delete("/api/comments/not-a-number")
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+            })
+        })
+    })
 })

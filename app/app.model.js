@@ -103,7 +103,7 @@ const insertComment = (username, body, article_id) => {
 
 const updateArticlebyID = (inc_votes, article_id) => {
     return checkIfExists("articles", "article_id", article_id)
-    .then (() => {
+    .then(() => {
         return db.query(`
                 UPDATE articles
                 SET
@@ -118,5 +118,15 @@ const updateArticlebyID = (inc_votes, article_id) => {
     })   
 }
 
-module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers }
+const removeComment = (comment_id) => {
+    return checkIfExists("comments", "comment_id", comment_id)
+    .then(() => {
+        return db.query(`
+            DELETE FROM comments
+            WHERE comment_id = $1
+        `, [comment_id])
+    })
+}
+
+module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers, removeComment }
 
