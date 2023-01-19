@@ -1,6 +1,4 @@
-
-
-const { getTopics, getArticles, getArticleById, getCommentsByArticleId, postComment, getUsers } = require("./app.controller")
+const { getTopics, getArticles, getArticleById, getCommentsByArticleId, postComment, patchArticleById, getUsers  } = require("./app.controller")
 const express = require("express")
 const app = express()
 
@@ -17,6 +15,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticleId)
 app.get("/api/user", getUsers)
 
 app.post("/api/articles/:article_id/comments", postComment)
+
+app.patch("/api/articles/:article_id", patchArticleById)
 
 app.use((err,request, response, next) => {
     const { status, msg } = err
