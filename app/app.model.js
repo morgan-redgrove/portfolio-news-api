@@ -69,6 +69,34 @@ const checkIfExists = (table, column, value) => {
     })
 }
 
+const insertComment = (username, body, article_id) => {
+    return checkIfExists("articles", "article_id", article_id)
+    .then(() => {
+        return db.query(`
+            INSERT INTO comments (
+                author,
+                body,
+                article_id,
+                votes,
+                created_at
+    
+            )
+            VALUES (
+                $1,
+                $2,
+                $3,
+                DEFAULT,
+                DEFAULT
+            )
+            RETURNING *
+        `,
+        [username, body, article_id])
+    })
+    .then((result) => {
+        return result.rows[0]
+    })
+}
+
 const updateArticlebyID = (inc_votes, article_id) => {
     return checkIfExists("articles", "article_id", article_id)
     .then (() => {
@@ -86,5 +114,5 @@ const updateArticlebyID = (inc_votes, article_id) => {
     })   
 }
 
-module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, updateArticlebyID }
+module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment,updateArticlebyID }
 
