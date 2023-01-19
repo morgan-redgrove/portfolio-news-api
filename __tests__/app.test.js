@@ -5,7 +5,6 @@ const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data")
 const comments = require("../db/data/test-data/comments")
-const { expect } = require("@jest/globals")
 
 beforeEach(() => {
     return seed(data)
@@ -32,7 +31,9 @@ describe("news-api", () => {
                 })
             })     
         })
-        describe("GET /api/articles", () => {
+
+
+        describe.only("GET /api/articles", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)
                 .get("/api/articles")
@@ -119,6 +120,15 @@ describe("news-api", () => {
                     })
                 })
             })
+            test("reponds with status code 404 'not found' if no articles found with the provided topic", () => {
+                return request(app)
+                .get("/api/articles?topic=not-a-topic")
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
             test("responds with status code 400 'bad request' when provided a query with an illegal column name or order direction", () => {
                 return request(app)
                 .get("/api/articles?sort_by=not-a-column")
@@ -138,6 +148,8 @@ describe("news-api", () => {
                 })
             })
         })
+
+
         describe("GET /api/articles/:article_id", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)

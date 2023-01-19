@@ -11,6 +11,20 @@ const selectTopics = () => {
     })
 }
 
+const checkIfExists = (table, column, value) => {
+    const queryString = format(`
+        SELECT * FROM %I
+        WHERE %I = $1
+    `, table, column)
+
+    return db.query(queryString, [value])
+    .then((result) => {
+        if (!result.rows.length) {
+            return Promise.reject({ status: 404, msg: 'not found' })
+        }
+    })
+}
+
 const selectArticles = (query) => {
     const topic = query.topic
     const sort_by = query.sort_by ?? "created_at"
@@ -31,28 +45,31 @@ const selectArticles = (query) => {
     `)
     
     if (topic) {
-        queryString += `WHERE topic = $1\n`
-    }
-
-    queryString += `GROUP BY articles.article_id\n`
-
-    if (greenLight) {
-        queryString += `ORDER BY ${sort_by} ${order}`
+        return checkIfExists("articles", "topic", topic)
+        .then(() => {
+            queryString += `WHERE topic = $1\nGROUP BY articles.article_id\n`
+            if (greenLight) {
+                queryString += `ORDER BY ${sort_by} ${order}`
+            } else {
+                return Promise.reject({status: 400, msg: "bad request"})
+            }
+            return db.query(queryString, [topic])
+            .then((result) => {
+                return result.rows
+            })
+        })
     } else {
-        return Promise.reject({status: 400, msg: "bad request"})
-    }
-
-    if(topic) {
-        return db.query(queryString, [topic])
+        queryString += `GROUP BY articles.article_id\n`
+        if (greenLight) {
+            queryString += `ORDER BY ${sort_by} ${order}`
+        } else {
+            return Promise.reject({status: 400, msg: "bad request"})
+        }
+        return db.query(queryString)
         .then((result) => {
             return result.rows
         })
     }
-
-    return db.query(queryString)
-    .then((result) => {
-        return result.rows
-    })
 }
 
 const selectArticleByID = (article_id) => {
@@ -90,20 +107,6 @@ const selectUsers = () => {
     `)
     .then((result) => {
         return result.rows
-    })
-}
-
-const checkIfExists = (table, column, value) => {
-    const queryString = format(`
-        SELECT * FROM %I
-        WHERE %I = $1
-    `, table, column)
-
-    return db.query(queryString, [value])
-    .then((result) => {
-        if (!result.rows.length) {
-            return Promise.reject({ status: 404, msg: 'not found' })
-        }
     })
 }
 
