@@ -1,5 +1,5 @@
-const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId } = require("./app.model")
 
+const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment } = require("./app.model")
 
 const getTopics = (request, response) => {
     selectTopics()
@@ -37,4 +37,16 @@ const getCommentsByArticleId = (request, response, next) => {
     })   
 }
 
-module.exports = { getTopics, getArticles, getArticleById, getCommentsByArticleId }
+const postComment = (request, response, next) => {
+    const { username, body }  = request.body
+    const { article_id } = request.params
+    insertComment(username, body, article_id)
+    .then((comment) => {
+        response.status(201).send({comment})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+module.exports = { getTopics, getArticles, getArticleById, getCommentsByArticleId, postComment }
