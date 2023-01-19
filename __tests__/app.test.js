@@ -161,10 +161,10 @@ describe("news-api", () => {
                 })
             })
         })
-        describe("GET /api/user", () => {
+        describe("GET /api/users", () => {
             test("responds with status code 200 and an array of user objects in the expected format", () => {
                 return request(app)
-                .get("/api/user")
+                .get("/api/users")
                 .expect(200)
                 .then(({body}) => {
                     const { users } = body
