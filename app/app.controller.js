@@ -1,5 +1,5 @@
 
-const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers } = require("./app.model")
+const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, insertComment, updateArticlebyID, removeComment } = require("./app.model")
 const endpoints = require("../endpoints.json")
 
 const getEndpoints = (request, response, next) => {
@@ -13,10 +13,14 @@ const getTopics = (request, response) => {
     })
 }
 
-const getArticles = (request, response) => {
-    selectArticles()
+const getArticles = (request, response, next) => {
+    const { query } = request
+    selectArticles(query)
     .then((articles) => {
         response.status(200).send({articles}) 
+    })
+    .catch((err) => {
+        next(err)
     })
 }
 
@@ -74,4 +78,15 @@ const patchArticleById = (request, response, next) => {
     })
 }
 
-module.exports = { getTopics, getArticles, getArticleById, getCommentsByArticleId, postComment, patchArticleById, getUsers, getEndpoints }
+const deleteComment= (request,response, next) => {
+    const { comment_id } = request.params
+    removeComment(comment_id)
+    .then(() => {
+        response.status(204).send()
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+module.exports = { getEndpoints, getTopics, getArticles, getArticleById, getCommentsByArticleId, getUsers, postComment, patchArticleById, deleteComment }
