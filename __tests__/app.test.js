@@ -78,7 +78,7 @@ describe("news-api", () => {
 
             }) 
         })
-        describe.only("GET /api/articles/:article_id", () => {
+        describe("GET /api/articles/:article_id", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)
                 .get("/api/articles/1")
@@ -87,7 +87,7 @@ describe("news-api", () => {
                     const { article } = body
                     expect(article.author).toEqual(expect.any(String))
                     expect(article.title).toEqual(expect.any(String))
-                    expect(article.article_id).toEqual(expect.any(Number))
+                    expect(article.article_id).toBe(1)
                     expect(article.body).toEqual(expect.any(String))
                     expect(article.topic).toEqual(expect.any(String))
                     expect(article.created_at).toEqual(expect.any(String))
@@ -129,7 +129,7 @@ describe("news-api", () => {
                         expect(comment.created_at).toEqual(expect.any(String))
                         expect(comment.author).toEqual(expect.any(String))
                         expect(comment.body).toEqual(expect.any(String))
-                        expect(comment.article_id).toEqual(expect.any(Number))
+                        expect(comment.article_id).toBe(1)
                     })
                 })
             })
@@ -259,7 +259,7 @@ describe("news-api", () => {
                     const { article } = body
                     expect(article.author).toEqual(expect.any(String))
                     expect(article.title).toEqual(expect.any(String))
-                    expect(article.article_id).toEqual(expect.any(Number))
+                    expect(article.article_id).toBe(1)
                     expect(article.body).toEqual(expect.any(String))
                     expect(article.topic).toEqual(expect.any(String))
                     expect(article.created_at).toEqual(expect.any(String))
