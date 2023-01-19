@@ -31,9 +31,7 @@ describe("news-api", () => {
                 })
             })     
         })
-
-
-        describe.only("GET /api/articles", () => {
+        describe("GET /api/articles", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)
                 .get("/api/articles")
@@ -148,8 +146,6 @@ describe("news-api", () => {
                 })
             })
         })
-
-
         describe("GET /api/articles/:article_id", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)
