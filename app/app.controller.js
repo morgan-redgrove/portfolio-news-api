@@ -1,5 +1,6 @@
 
-const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers } = require("./app.model")
+const { removeComments } = require("@babel/types")
+const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers, removeComment } = require("./app.model")
 
 const getTopics = (request, response) => {
     selectTopics()
@@ -73,4 +74,15 @@ const patchArticleById = (request, response, next) => {
     })
 }
 
-module.exports = { getTopics, getArticles, getArticleById, getCommentsByArticleId, postComment, patchArticleById, getUsers }
+const deleteComment= (request,response, next) => {
+    const { comment_id } = request.params
+    removeComment(comment_id)
+    .then(() => {
+        response.status(204).send()
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+module.exports = { getTopics, getArticles, getArticleById, getCommentsByArticleId, postComment, patchArticleById, getUsers, deleteComment }
