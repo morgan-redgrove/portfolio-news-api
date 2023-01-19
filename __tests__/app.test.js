@@ -93,6 +93,14 @@ describe("news-api", () => {
                     expect(article.created_at).toEqual(expect.any(String))
                     expect(article.votes).toEqual(expect.any(Number))
                     expect(article.article_img_url).toEqual(expect.any(String))
+                })
+            })
+            test("the returned object has a key of 'comment_count'", () => {
+                return request(app)
+                .get("/api/articles/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { article } = body
                     expect(article.comment_count).toEqual(expect.any(String))
                 })
             })
