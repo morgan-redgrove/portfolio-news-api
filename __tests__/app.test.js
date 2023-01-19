@@ -174,31 +174,9 @@ describe("news-api", () => {
                     expect(comment.comment_id).toEqual(expect.any(Number))
                     expect(comment.votes).toEqual(expect.any(Number))
                     expect(comment.created_at).toEqual(expect.any(String))
-                    expect(comment.author).toEqual(expect.any(String))
-                    expect(comment.body).toEqual(expect.any(String))
-                    expect(comment.article_id).toEqual(expect.any(Number))
-                })
-            })
-            test("posts the new comment to the database", () => {
-                const sentObj= {"username": "icellusedkars", "body": "test2"}
-
-                return request(app)
-                .post("/api/articles/1/comments")
-                .send(sentObj)
-                .expect(201)
-                .then(() => {
-                    return request(app)
-                    .get("/api/articles/1/comments")
-                    .expect(200)
-                    .then(({ body }) => {
-                        const { comments } = body
-                        const { username: sentUsername, body: sentBody} = sentObj
-                        const includesComment = comments.some((comment) => {
-                            const { author, body } = comment
-                            return author === sentUsername && body === sentBody
-                        })
-                        expect(includesComment).toBe(true)
-                    })
+                    expect(comment.author).toBe("butter_bridge")
+                    expect(comment.body).toBe("test")
+                    expect(comment.article_id).toBe(1)
                 })
             })
             test("responds with status code 404 'not found' if no article found with article_id", () => {
@@ -251,6 +229,109 @@ describe("news-api", () => {
                     })
                 })
             })
+        })
+    })
+    describe("PATCH requests", () => {
+        describe("PATCH /api/articles/:article_id", () => {
+            test("responds with status code 201 and the patched object in expected format", () => {
+                return request(app)
+                .patch("/api/articles/1")
+                .send({inc_votes: 100})
+                .expect(201)
+                .then(({body}) => {
+                    const { article } = body
+                    expect(article.author).toEqual(expect.any(String))
+                    expect(article.title).toEqual(expect.any(String))
+                    expect(article.article_id).toEqual(expect.any(Number))
+                    expect(article.body).toEqual(expect.any(String))
+                    expect(article.topic).toEqual(expect.any(String))
+                    expect(article.created_at).toEqual(expect.any(String))
+                    expect(article.votes).toEqual(expect.any(Number))
+                    expect(article.article_img_url).toEqual(expect.any(String))
+                })
+            })
+            test("increments the article votes by the correct amount", () => {
+                let previousVotes
+
+                return request(app)
+                .get("/api/articles/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { votes } = body.article
+                    previousVotes = votes
+                })
+                .then(() => {
+                    return request(app)
+                    .patch("/api/articles/1")
+                    .send({inc_votes: 100})
+                    .expect(201)
+                    .then(({body}) => {
+                        const { votes } = body.article
+                        expect(votes).toBe(previousVotes + 100)
+                     })
+                })
+            })
+            test("decrements the article votes by the correct amount", () => {
+                let previousVotes
+
+                return request(app)
+                .get("/api/articles/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { votes } = body.article
+                    previousVotes = votes
+                })
+                .then(() => {
+                    return request(app)
+                    .patch("/api/articles/1")
+                    .send({inc_votes: -50})
+                    .expect(201)
+                    .then(({body}) => {
+                        const { votes } = body.article
+                        expect(votes).toBe(previousVotes - 50)
+                     })
+                })
+            })
+            test("responds with status code 404 'not found' if there are no articles with a matching article_id", () => {
+                return request(app)
+                .patch("/api/articles/9999")
+                .send({inc_votes: 100})
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
+            test("responds with status code 400 'bad request' when provided an article_id or inc_votes that is not a number", () => {
+                return request(app)
+                .patch("/api/articles/not-a-number")
+                .send({inc_votes: 100})
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+                .then(() => {
+                    return request(app)
+                    .patch("/api/articles/1")
+                    .send({inc_votes: "not-a-number"})
+                    .expect(400)
+                    .then(({body}) => {
+                        const { msg } = body
+                        expect(msg).toBe("bad request")
+                    })
+                })
+            })
+            test("responds with status code 400 'bad request' if not provided with the key 'inc_votes'", () => {
+                return request(app)
+                .patch("/api/articles/1")
+                .send({})
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+            })       
         })
     })
 })

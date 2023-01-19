@@ -1,5 +1,5 @@
 const db = require("../db/connection")
-const format = require("pg-format")
+const format = require ("pg-format")
 
 const selectTopics = () => {
     return db.query(`
@@ -76,17 +76,12 @@ const insertComment = (username, body, article_id) => {
             INSERT INTO comments (
                 author,
                 body,
-                article_id,
-                votes,
-                created_at
-    
+                article_id  
             )
             VALUES (
                 $1,
                 $2,
-                $3,
-                DEFAULT,
-                DEFAULT
+                $3
             )
             RETURNING *
         `,
@@ -97,5 +92,22 @@ const insertComment = (username, body, article_id) => {
     })
 }
 
-module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment }
+const updateArticlebyID = (inc_votes, article_id) => {
+    return checkIfExists("articles", "article_id", article_id)
+    .then (() => {
+        return db.query(`
+                UPDATE articles
+                SET
+                votes = votes + $1
+                WHERE article_id = $2
+                RETURNING *
+            `, 
+            [inc_votes, article_id])
+    })
+    .then((result) => {
+        return result.rows[0]
+    })   
+}
+
+module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment,updateArticlebyID }
 
