@@ -55,6 +55,15 @@ const selectCommentsByArticleId = (article_id) => {
     })
 }
 
+const selectUsers = () => {
+    return db.query(`
+        SELECT * FROM users
+    `)
+    .then((result) => {
+        return result.rows
+    })
+}
+
 const checkIfExists = (table, column, value) => {
     const queryString = format(`
         SELECT * FROM %I
@@ -109,5 +118,5 @@ const updateArticlebyID = (inc_votes, article_id) => {
     })   
 }
 
-module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment,updateArticlebyID }
+module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers }
 
