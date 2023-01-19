@@ -8,10 +8,14 @@ const getTopics = (request, response) => {
     })
 }
 
-const getArticles = (request, response) => {
-    selectArticles()
+const getArticles = (request, response, next) => {
+    const { query } = request
+    selectArticles(query)
     .then((articles) => {
         response.status(200).send({articles}) 
+    })
+    .catch((err) => {
+        next(err)
     })
 }
 

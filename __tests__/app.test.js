@@ -5,6 +5,7 @@ const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data")
 const comments = require("../db/data/test-data/comments")
+const { expect } = require("@jest/globals")
 
 beforeEach(() => {
     return seed(data)
@@ -51,7 +52,7 @@ describe("news-api", () => {
                     })
                 })
             })  
-            test("the value of 'comment_count' is equal the number of comments for a given article", () => {
+            test("the value of 'comment_count' is equal to the number of comments for a given article", () => {
                 return request(app)
                 .get("/api/articles")
                 .expect(200)
@@ -65,8 +66,8 @@ describe("news-api", () => {
                         expect(article.comment_count).toBe(String(expectedCount))
                     })
                 })
-            })  
-            test("the 'articles' array is returned in descending date order", () => {
+            }) 
+            test("the 'articles' array is returned in descending date order by default", () => {
                 return request(app)
                 .get("/api/articles")
                 .expect(200)
@@ -75,8 +76,67 @@ describe("news-api", () => {
                     expect(articles.length).toBeGreaterThan(0)
                     expect(articles).toBeSortedBy("created_at", {descending: true})
                 })
-
-            }) 
+            })
+            test("the 'articles' array is returned in ascending order when query 'order=ASC' is provided", () => {
+                return request(app)
+                .get("/api/articles?order=ASC")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    expect(articles).toBeSortedBy("created_at")
+                })
+            })
+            test("the 'articles' array is returned in descending order when query 'order=DESC' is provided", () => {
+                return request(app)
+                .get("/api/articles?order=DESC")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    expect(articles).toBeSortedBy("created_at", {descending: true})
+                })
+            })
+            test("the 'articles' array is returned ordered by the 'sort_by=' query provided", () => {
+                return request(app)
+                .get("/api/articles?sort_by=title")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    expect(articles).toBeSortedBy("title", {descending: true})
+                })
+            })
+            test("the 'articles' array is returned filtered by the 'topic=' query provided", () => {
+                return request(app)
+                .get("/api/articles?topic=cats")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    articles.forEach((article) => {
+                        expect(article.topic).toBe("cats")
+                    })
+                })
+            })
+            test("responds with status code 400 'bad request' when provided a query with an illegal column name or order direction", () => {
+                return request(app)
+                .get("/api/articles?sort_by=not-a-column")
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+                .then(() => {
+                    return request(app)
+                    .get("/api/articles?order=not-a-direction")
+                    .expect(400)
+                    .then(({body}) => {
+                        const { msg } = body
+                        expect(msg).toBe("bad request")
+                    })
+                })
+            })
         })
         describe("GET /api/articles/:article_id", () => {
             test("responds with status code 200 and an object in expected format", () => {
