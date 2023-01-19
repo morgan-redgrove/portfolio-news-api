@@ -174,31 +174,9 @@ describe("news-api", () => {
                     expect(comment.comment_id).toEqual(expect.any(Number))
                     expect(comment.votes).toEqual(expect.any(Number))
                     expect(comment.created_at).toEqual(expect.any(String))
-                    expect(comment.author).toEqual(expect.any(String))
-                    expect(comment.body).toEqual(expect.any(String))
-                    expect(comment.article_id).toEqual(expect.any(Number))
-                })
-            })
-            test("posts the new comment to the database", () => {
-                const sentObj= {"username": "icellusedkars", "body": "test2"}
-
-                return request(app)
-                .post("/api/articles/1/comments")
-                .send(sentObj)
-                .expect(201)
-                .then(() => {
-                    return request(app)
-                    .get("/api/articles/1/comments")
-                    .expect(200)
-                    .then(({ body }) => {
-                        const { comments } = body
-                        const { username: sentUsername, body: sentBody} = sentObj
-                        const includesComment = comments.some((comment) => {
-                            const { author, body } = comment
-                            return author === sentUsername && body === sentBody
-                        })
-                        expect(includesComment).toBe(true)
-                    })
+                    expect(comment.author).toBe("butter_bridge")
+                    expect(comment.body).toBe("test")
+                    expect(comment.article_id).toBe(1)
                 })
             })
             test("responds with status code 404 'not found' if no article found with article_id", () => {

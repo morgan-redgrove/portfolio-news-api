@@ -76,17 +76,12 @@ const insertComment = (username, body, article_id) => {
             INSERT INTO comments (
                 author,
                 body,
-                article_id,
-                votes,
-                created_at
-    
+                article_id  
             )
             VALUES (
                 $1,
                 $2,
-                $3,
-                DEFAULT,
-                DEFAULT
+                $3
             )
             RETURNING *
         `,
