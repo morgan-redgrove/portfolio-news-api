@@ -51,7 +51,7 @@ describe("news-api", () => {
                     })
                 })
             })  
-            test("the value of 'comment_count' is equal the number of comments for a given article", () => {
+            test("the value of 'comment_count' is equal to the number of comments for a given article", () => {
                 return request(app)
                 .get("/api/articles")
                 .expect(200)
@@ -65,8 +65,8 @@ describe("news-api", () => {
                         expect(article.comment_count).toBe(String(expectedCount))
                     })
                 })
-            })  
-            test("the 'articles' array is returned in descending date order", () => {
+            }) 
+            test("the 'articles' array is returned in descending date order by default", () => {
                 return request(app)
                 .get("/api/articles")
                 .expect(200)
@@ -75,8 +75,76 @@ describe("news-api", () => {
                     expect(articles.length).toBeGreaterThan(0)
                     expect(articles).toBeSortedBy("created_at", {descending: true})
                 })
-
-            }) 
+            })
+            test("the 'articles' array is returned in ascending order when query 'order=ASC' is provided", () => {
+                return request(app)
+                .get("/api/articles?order=ASC")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    expect(articles).toBeSortedBy("created_at")
+                })
+            })
+            test("the 'articles' array is returned in descending order when query 'order=DESC' is provided", () => {
+                return request(app)
+                .get("/api/articles?order=DESC")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    expect(articles).toBeSortedBy("created_at", {descending: true})
+                })
+            })
+            test("the 'articles' array is returned ordered by the 'sort_by=' query provided", () => {
+                return request(app)
+                .get("/api/articles?sort_by=title")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    expect(articles).toBeSortedBy("title", {descending: true})
+                })
+            })
+            test("the 'articles' array is returned filtered by the 'topic=' query provided", () => {
+                return request(app)
+                .get("/api/articles?topic=cats")
+                .expect(200)
+                .then(({body}) => {
+                    const { articles } = body
+                    expect(articles.length).toBeGreaterThan(0)
+                    articles.forEach((article) => {
+                        expect(article.topic).toBe("cats")
+                    })
+                })
+            })
+            test("reponds with status code 404 'not found' if no articles found with the provided topic", () => {
+                return request(app)
+                .get("/api/articles?topic=not-a-topic")
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
+            test("responds with status code 400 'bad request' when provided a query with an illegal column name or order direction", () => {
+                return request(app)
+                .get("/api/articles?sort_by=not-a-column")
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+                .then(() => {
+                    return request(app)
+                    .get("/api/articles?order=not-a-direction")
+                    .expect(400)
+                    .then(({body}) => {
+                        const { msg } = body
+                        expect(msg).toBe("bad request")
+                    })
+                })
+            })
         })
         describe("GET /api/articles/:article_id", () => {
             test("responds with status code 200 and an object in expected format", () => {
@@ -87,12 +155,21 @@ describe("news-api", () => {
                     const { article } = body
                     expect(article.author).toEqual(expect.any(String))
                     expect(article.title).toEqual(expect.any(String))
-                    expect(article.article_id).toEqual(expect.any(Number))
+                    expect(article.article_id).toBe(1)
                     expect(article.body).toEqual(expect.any(String))
                     expect(article.topic).toEqual(expect.any(String))
                     expect(article.created_at).toEqual(expect.any(String))
                     expect(article.votes).toEqual(expect.any(Number))
                     expect(article.article_img_url).toEqual(expect.any(String))
+                })
+            })
+            test("the returned object has a key of 'comment_count'", () => {
+                return request(app)
+                .get("/api/articles/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { article } = body
+                    expect(article.comment_count).toEqual(expect.any(String))
                 })
             })
             test("responds with status code 404 'not found' when no article found with article_id", () => {
@@ -128,7 +205,7 @@ describe("news-api", () => {
                         expect(comment.created_at).toEqual(expect.any(String))
                         expect(comment.author).toEqual(expect.any(String))
                         expect(comment.body).toEqual(expect.any(String))
-                        expect(comment.article_id).toEqual(expect.any(Number))
+                        expect(comment.article_id).toBe(1)
                     })
                 })
             })
@@ -258,7 +335,7 @@ describe("news-api", () => {
                     const { article } = body
                     expect(article.author).toEqual(expect.any(String))
                     expect(article.title).toEqual(expect.any(String))
-                    expect(article.article_id).toEqual(expect.any(Number))
+                    expect(article.article_id).toBe(1)
                     expect(article.body).toEqual(expect.any(String))
                     expect(article.topic).toEqual(expect.any(String))
                     expect(article.created_at).toEqual(expect.any(String))
