@@ -31,9 +31,7 @@ describe("news-api", () => {
                 })
             })     
         })
-
-
-        describe.only("GET /api/articles", () => {
+        describe("GET /api/articles", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)
                 .get("/api/articles")
@@ -148,8 +146,6 @@ describe("news-api", () => {
                 })
             })
         })
-
-
         describe("GET /api/articles/:article_id", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)
@@ -159,12 +155,21 @@ describe("news-api", () => {
                     const { article } = body
                     expect(article.author).toEqual(expect.any(String))
                     expect(article.title).toEqual(expect.any(String))
-                    expect(article.article_id).toEqual(expect.any(Number))
+                    expect(article.article_id).toBe(1)
                     expect(article.body).toEqual(expect.any(String))
                     expect(article.topic).toEqual(expect.any(String))
                     expect(article.created_at).toEqual(expect.any(String))
                     expect(article.votes).toEqual(expect.any(Number))
                     expect(article.article_img_url).toEqual(expect.any(String))
+                })
+            })
+            test("the returned object has a key of 'comment_count'", () => {
+                return request(app)
+                .get("/api/articles/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { article } = body
+                    expect(article.comment_count).toEqual(expect.any(String))
                 })
             })
             test("responds with status code 404 'not found' when no article found with article_id", () => {
@@ -200,7 +205,7 @@ describe("news-api", () => {
                         expect(comment.created_at).toEqual(expect.any(String))
                         expect(comment.author).toEqual(expect.any(String))
                         expect(comment.body).toEqual(expect.any(String))
-                        expect(comment.article_id).toEqual(expect.any(Number))
+                        expect(comment.article_id).toBe(1)
                     })
                 })
             })
@@ -330,7 +335,7 @@ describe("news-api", () => {
                     const { article } = body
                     expect(article.author).toEqual(expect.any(String))
                     expect(article.title).toEqual(expect.any(String))
-                    expect(article.article_id).toEqual(expect.any(Number))
+                    expect(article.article_id).toBe(1)
                     expect(article.body).toEqual(expect.any(String))
                     expect(article.topic).toEqual(expect.any(String))
                     expect(article.created_at).toEqual(expect.any(String))
