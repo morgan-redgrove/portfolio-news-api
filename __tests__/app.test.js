@@ -160,6 +160,22 @@ describe("news-api", () => {
                     expect(msg).toBe("bad request")
                 })
             })
+        })
+        describe("GET /api/user", () => {
+            test("responds with status code 200 and an array of user objects in the expected format", () => {
+                return request(app)
+                .get("/api/user")
+                .expect(200)
+                .then(({body}) => {
+                    const { users } = body
+                    expect(users.length).toBeGreaterThan(0)
+                    users.forEach((article) => {
+                        expect(article.username).toEqual(expect.any(String))
+                        expect(article.name).toEqual(expect.any(String))
+                        expect(article.avatar_url).toEqual(expect.any(String))
+                    })
+                })
+            })
         })  
     })
     describe("POST requests", () => {
