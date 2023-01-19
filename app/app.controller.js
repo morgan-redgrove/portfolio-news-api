@@ -2,6 +2,10 @@
 const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers } = require("./app.model")
 const endpoints = require("../endpoints.json")
 
+const getEndpoints = (request, response, next) => {
+    response.status(200).send({endpoints})
+}
+
 const getTopics = (request, response) => {
     selectTopics()
     .then((topics) => {
@@ -68,10 +72,6 @@ const patchArticleById = (request, response, next) => {
     .catch((err) => {
         next(err)
     })
-}
-
-const getEndpoints = (request, response, next) => {
-    response.status(200).send({endpoints})
 }
 
 module.exports = { getTopics, getArticles, getArticleById, getCommentsByArticleId, postComment, patchArticleById, getUsers, getEndpoints }
