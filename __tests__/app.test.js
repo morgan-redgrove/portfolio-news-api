@@ -5,6 +5,8 @@ const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data")
 const comments = require("../db/data/test-data/comments")
+const expectedEndpoints = require("../endpoints.json")
+
 
 beforeEach(() => {
     return seed(data)
@@ -16,6 +18,17 @@ afterAll(() => {
 
 describe("news-api", () => {
     describe("GET requests", () => {
+        describe("GET /api", () => {
+            test("responds with status code 200 and an object in expected format", () => {
+                return request(app)
+                .get("/api")
+                .expect(200)
+                .then(({body}) => {
+                    const { endpoints } = body
+                    expect(JSON.stringify(endpoints)).toBe(JSON.stringify(expectedEndpoints))
+                })
+            })
+        })
         describe("GET /api/topics", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)
