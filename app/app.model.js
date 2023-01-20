@@ -117,6 +117,20 @@ const selectUsers = () => {
     })
 }
 
+const selectUserById = (username) => {
+    return checkIfExists("users", "username", username)
+    .then(() => {
+        return db.query(`
+            SELECT * FROM users
+            WHERE username = $1
+        `,
+        [username])
+        .then((result) => {
+            return result.rows[0]
+        })    
+    })
+}
+
 const insertComment = (username, body, article_id) => {
     return checkIfExists("articles", "article_id", article_id)
     .then(() => {
@@ -167,4 +181,4 @@ const removeComment = (comment_id) => {
     })
 }
 
-module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, insertComment, updateArticlebyID, removeComment }
+module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, selectUserById, insertComment, updateArticlebyID, removeComment }

@@ -1,15 +1,18 @@
 
-const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, insertComment, updateArticlebyID, removeComment } = require("./app.model")
+const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, selectUserById, insertComment, updateArticlebyID, removeComment } = require("./app.model")
 const endpoints = require("../endpoints.json")
 
-const getEndpoints = (request, response, next) => {
+const getEndpoints = (request, response) => {
     response.status(200).send({endpoints})
 }
 
-const getTopics = (request, response) => {
+const getTopics = (request, response, next) => {
     selectTopics()
     .then((topics) => {
         response.status(200).send({topics})
+    })
+    .catch((err) => {
+        next(err)
     })
 }
 
@@ -35,12 +38,25 @@ const getArticleById = (request, response, next) => {
     })
 }
 
-const getUsers = (request, response) => {
+const getUsers = (request, response, next) => {
     selectUsers()
     .then((users) => {
         response.status(200).send({users})        
     })
-    
+    .catch((err) => {
+        next(err)
+    })
+}
+
+const getUserbyId = (request, response, next) => {
+    const { username } = request.params
+    selectUserById(username)
+    .then((user) => {
+        response.status(200).send({user})
+    })
+    .catch((err) => {
+        next(err)
+    })
 }
 
 const getCommentsByArticleId = (request, response, next) => {
@@ -89,4 +105,4 @@ const deleteComment= (request,response, next) => {
     })
 }
 
-module.exports = { getEndpoints, getTopics, getArticles, getArticleById, getCommentsByArticleId, getUsers, postComment, patchArticleById, deleteComment }
+module.exports = { getEndpoints, getTopics, getArticles, getArticleById, getCommentsByArticleId, getUsers, getUserbyId, postComment, patchArticleById, deleteComment }

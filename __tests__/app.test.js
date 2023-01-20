@@ -259,14 +259,36 @@ describe("news-api", () => {
                 .then(({body}) => {
                     const { users } = body
                     expect(users.length).toBeGreaterThan(0)
-                    users.forEach((article) => {
-                        expect(article.username).toEqual(expect.any(String))
-                        expect(article.name).toEqual(expect.any(String))
-                        expect(article.avatar_url).toEqual(expect.any(String))
+                    users.forEach((user) => {
+                        expect(user.username).toEqual(expect.any(String))
+                        expect(user.name).toEqual(expect.any(String))
+                        expect(user.avatar_url).toEqual(expect.any(String))
                     })
                 })
             })
         })  
+        describe("GET /api/users/:username", () => {
+            test("reponds with status code 200 and an object in the expected format", () => {
+                return request(app)
+                .get("/api/users/butter_bridge")
+                .expect(200)
+                .then(({body}) => {
+                    const { user } = body
+                    expect(user.username).toBe("butter_bridge")
+                    expect(user.name).toEqual(expect.any(String))
+                    expect(user.avatar_url).toEqual(expect.any(String))
+                })
+            })
+            test("responds with status code 404 'not found' if there are no users with a matching username", () => {
+                return request(app)
+                .get("/api/users/not-a-user")
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
+        })
     })
     describe("POST requests", () => {
         describe("POST /api/articles/:article_id/comments", () => {
