@@ -1,6 +1,7 @@
 
-const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, selectUserById, insertComment, updateArticlebyID, removeComment } = require("./app.model")
+const { selectTopics, selectArticles, selectArticleById, selectCommentsByArticleId, selectUsers, selectUserById, selectCommentById, insertComment, updateArticlebyId, updateCommentById, removeComment } = require("./app.model")
 const endpoints = require("../endpoints.json")
+const { response } = require("./app")
 
 const getEndpoints = (request, response) => {
     response.status(200).send({endpoints})
@@ -29,7 +30,7 @@ const getArticles = (request, response, next) => {
 
 const getArticleById = (request, response, next) => {
     const { article_id } = request.params
-    selectArticleByID(article_id)
+    selectArticleById(article_id)
     .then((article) => {
         response.status(200).send({article})
     })
@@ -53,6 +54,17 @@ const getUserbyId = (request, response, next) => {
     selectUserById(username)
     .then((user) => {
         response.status(200).send({user})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+const getCommentById = (request, response, next) => {
+    const { comment_id } = request.params
+    selectCommentById(comment_id)
+    .then((comment) => {
+        response.status(200).send({comment})
     })
     .catch((err) => {
         next(err)
@@ -85,9 +97,21 @@ const postComment = (request, response, next) => {
 const patchArticleById = (request, response, next) => {
     const { inc_votes }  = request.body
     const { article_id } = request.params
-    updateArticlebyID(inc_votes, article_id)
+    updateArticlebyId(inc_votes, article_id)
     .then((article) => {
         response.status(201).send({article})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+const patchCommentByID = (request, response, next) => {
+    const { inc_votes }  = request.body
+    const { comment_id } = request.params
+    updateCommentById(inc_votes, comment_id)
+    .then((comment) => {
+        response.status(201).send({comment})
     })
     .catch((err) => {
         next(err)
@@ -105,4 +129,4 @@ const deleteComment= (request,response, next) => {
     })
 }
 
-module.exports = { getEndpoints, getTopics, getArticles, getArticleById, getCommentsByArticleId, getUsers, getUserbyId, postComment, patchArticleById, deleteComment }
+module.exports = { getEndpoints, getTopics, getArticles, getArticleById, getCommentsByArticleId, getUsers, getUserbyId, getCommentById, postComment, patchArticleById, patchCommentByID, deleteComment }

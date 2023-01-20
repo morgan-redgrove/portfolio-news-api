@@ -72,7 +72,7 @@ const selectArticles = (query) => {
     }
 }
 
-const selectArticleByID = (article_id) => {
+const selectArticleById = (article_id) => {
     return db.query(`
     SELECT articles.*,
     COUNT(comments.comment_id) AS comment_count
@@ -131,6 +131,20 @@ const selectUserById = (username) => {
     })
 }
 
+const selectCommentById = (comment_id) => {
+    return checkIfExists("comments", "comment_id", comment_id)
+    .then(() => {
+        return db.query(`
+            SELECT * FROM comments
+            WHERE comment_id = $1
+        `,
+        [comment_id])
+        .then((result) => {
+            return result.rows[0]
+        })    
+    })
+}
+
 const insertComment = (username, body, article_id) => {
     return checkIfExists("articles", "article_id", article_id)
     .then(() => {
@@ -154,7 +168,7 @@ const insertComment = (username, body, article_id) => {
     })
 }
 
-const updateArticlebyID = (inc_votes, article_id) => {
+const updateArticlebyId = (inc_votes, article_id) => {
     return checkIfExists("articles", "article_id", article_id)
     .then(() => {
         return db.query(`
@@ -171,6 +185,23 @@ const updateArticlebyID = (inc_votes, article_id) => {
     })   
 }
 
+const updateCommentById = (inc_votes, comment_id) => {
+    return checkIfExists("comments", "comment_id", comment_id)
+    .then(() => {
+        return db.query(`
+                UPDATE comments
+                SET
+                votes = votes + $1
+                WHERE comment_id = $2
+                RETURNING *
+            `, 
+            [inc_votes, comment_id])
+    })
+    .then((result) => {
+        return result.rows[0]
+    })   
+}
+
 const removeComment = (comment_id) => {
     return checkIfExists("comments", "comment_id", comment_id)
     .then(() => {
@@ -181,4 +212,4 @@ const removeComment = (comment_id) => {
     })
 }
 
-module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, selectUserById, insertComment, updateArticlebyID, removeComment }
+module.exports = { selectTopics, selectArticles, selectArticleById, selectCommentsByArticleId, selectUsers, selectUserById, selectCommentById, insertComment, updateArticlebyId, updateCommentById, removeComment }
