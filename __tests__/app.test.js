@@ -5,6 +5,8 @@ const db = require("../db/connection")
 const seed = require("../db/seeds/seed")
 const data = require("../db/data/test-data")
 const comments = require("../db/data/test-data/comments")
+const expectedEndpoints = require("../endpoints.json")
+
 
 beforeEach(() => {
     return seed(data)
@@ -16,6 +18,17 @@ afterAll(() => {
 
 describe("news-api", () => {
     describe("GET requests", () => {
+        describe("GET /api", () => {
+            test("responds with status code 200 and an object in expected format", () => {
+                return request(app)
+                .get("/api")
+                .expect(200)
+                .then(({body}) => {
+                    const { endpoints } = body
+                    expect(JSON.stringify(endpoints)).toBe(JSON.stringify(expectedEndpoints))
+                })
+            })
+        })
         describe("GET /api/topics", () => {
             test("responds with status code 200 and an object in expected format", () => {
                 return request(app)
@@ -96,7 +109,7 @@ describe("news-api", () => {
                     expect(articles).toBeSortedBy("created_at", {descending: true})
                 })
             })
-            test("the 'articles' array is returned ordered by the 'sort_by=' query provided", () => {
+            test("the 'articles' array is returned ordered by the 'sort_by=' query when provided", () => {
                 return request(app)
                 .get("/api/articles?sort_by=title")
                 .expect(200)
@@ -106,7 +119,7 @@ describe("news-api", () => {
                     expect(articles).toBeSortedBy("title", {descending: true})
                 })
             })
-            test("the 'articles' array is returned filtered by the 'topic=' query provided", () => {
+            test("the 'articles' array is returned filtered by the 'topic=' query when provided", () => {
                 return request(app)
                 .get("/api/articles?topic=cats")
                 .expect(200)
@@ -118,7 +131,7 @@ describe("news-api", () => {
                     })
                 })
             })
-            test("reponds with status code 404 'not found' if no articles found with the provided topic", () => {
+            test("responds with status code 404 'not found' if there are no articles with a matching topic", () => {
                 return request(app)
                 .get("/api/articles?topic=not-a-topic")
                 .expect(404)
@@ -172,7 +185,7 @@ describe("news-api", () => {
                     expect(article.comment_count).toEqual(expect.any(String))
                 })
             })
-            test("responds with status code 404 'not found' when no article found with article_id", () => {
+            test("responds with status code 404 'not found' if there are no articles with a matching comment_id", () => {
                 return request(app)
                 .get("/api/articles/9999")
                 .expect(404)
@@ -444,7 +457,7 @@ describe("news-api", () => {
                     .expect(404)
                 })
             })
-            test("responds with status code 404 'not found' if there are not comments with a matching comment_id", () => {
+            test("responds with status code 404 'not found' if there are no comments with a matching comment_id", () => {
                 return request(app)
                 .delete("/api/comments/9999")
                 .expect(404)
@@ -453,7 +466,7 @@ describe("news-api", () => {
                     expect(msg).toBe("not found")
                 })
             })
-            test("responds with status code 400 'bad request' when provided an comment_id that is not a number", () => {
+            test("responds with status code 400 'bad request' when provided a comment_id that is not a number", () => {
                 return request(app)
                 .delete("/api/comments/not-a-number")
                 .expect(400)

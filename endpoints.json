@@ -6,22 +6,125 @@
     "description": "serves an array of all topics",
     "queries": [],
     "exampleResponse": {
-      "topics": [{ "slug": "football", "description": "Footie!" }]
-    }
-  },
-  "GET /api/articles": {
-    "description": "serves an array of all topics",
-    "queries": ["author", "topic", "sort_by", "order"],
-    "exampleResponse": {
-      "articles": [
+      "topics": [ 
         {
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
-          "body": "Text from the article..",
-          "created_at": 1527695953341
+        "description": "The man, the Mitch, the legend",
+        "slug": "mitch"
         }
       ]
     }
+  },
+  "GET /api/articles": {
+    "description": "serves an array of all articles",
+    "queries": ["topic", "sort_by", "order"],
+    "exampleResponse": {
+      "articles": [
+        {
+          "article_id": 1,
+          "title": "Living in the shadow of a great man",
+          "topic": "mitch",
+          "author": "butter_bridge",
+          "body": "I find this existence challenging",
+          "created_at": 1594329060000,
+          "votes": 100,
+          "article_img_url":
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": 10
+        }
+      ]
+    }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves the article for a given article_id",
+    "queries": [],
+    "exampleResponse": {
+    "article":     {
+      "article_id": 2,
+      "title": "Sony Vaio; or, The Laptop",
+      "topic": "mitch",
+      "author": "icellusedkars",
+      "body": "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
+      "created_at": 1602828180000,
+      "votes": 100,
+      "article_img_url":
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      "comment_count": 10
+    }
+    }
+  },
+  "GET /api/:article_id/comments": {
+    "description": "serves an array of all the comments for a given article_id",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          "article_id": 9,
+          "author": "butter_bridge",
+          "votes": 16,
+          "created_at": 1586179020000
+        }
+      ]
+    }
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "queries": [],
+    "exampleResponse": {
+      "comments": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url":
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+        }
+      ]
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a comment to the database with a given article_id",
+    "queries": [],
+    "exampleBody": {
+      "username": "butter_bridge",
+      "body": "This is an example body."
+    },
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 2,
+          "body": "This is an example body.",
+          "article_id": 1,
+          "author": "butter_bridge",
+          "votes": 14,
+          "created_at": 1604113380000
+        }
+      ]
+    }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "updates the votes of an article with a given article_id",
+    "queries": [],
+    "exampleBody": {
+      "inc_votes": 50
+    },
+    "exampleResponse": {
+      "article":  {
+        "article_id": 3,
+        "title": "Eight pug gifs that remind me of mitch",
+        "topic": "mitch",
+        "author": "icellusedkars",
+        "body": "some gifs",
+        "created_at": 1604394720000,
+        "votes": 150,
+        "article_img_url":
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes a comment with a given comment_id",
+    "queries": [],
+    "exampleResponse": {}
   }
 }

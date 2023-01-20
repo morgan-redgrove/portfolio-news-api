@@ -1,6 +1,10 @@
 
-const { removeComments } = require("@babel/types")
-const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers, removeComment } = require("./app.model")
+const { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, insertComment, updateArticlebyID, removeComment } = require("./app.model")
+const endpoints = require("../endpoints.json")
+
+const getEndpoints = (request, response, next) => {
+    response.status(200).send({endpoints})
+}
 
 const getTopics = (request, response) => {
     selectTopics()
@@ -85,4 +89,4 @@ const deleteComment= (request,response, next) => {
     })
 }
 
-module.exports = { getTopics, getArticles, getArticleById, getCommentsByArticleId, postComment, patchArticleById, getUsers, deleteComment }
+module.exports = { getEndpoints, getTopics, getArticles, getArticleById, getCommentsByArticleId, getUsers, postComment, patchArticleById, deleteComment }
