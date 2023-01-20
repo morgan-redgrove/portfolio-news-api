@@ -289,6 +289,42 @@ describe("news-api", () => {
                 })
             })
         })
+        describe("GET /api/comments/:comment_id", () => {
+            test("reponds with status code 200 and an object in the expected format", () => {
+                return request(app)
+                .get("/api/comments/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { comment } = body
+                    expect(comment.comment_id).toBe(1)
+                    expect(comment.votes).toEqual(expect.any(Number))
+                    expect(comment.created_at).toEqual(expect.any(String))
+                    expect(comment.author).toEqual(expect.any(String))
+                    expect(comment.body).toEqual(expect.any(String))
+                    expect(comment.article_id).toEqual(expect.any(Number))
+                })
+            })
+            test("responds with status code 404 'not found' if there are no comments with a matching comment_id", () => {
+                return request(app)
+                .patch("/api/comments/9999")
+                .send({inc_votes: 100})
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
+            test("responds with status code 400 'bad request' when provided an comment_id or inc_votes that is not a number", () => {
+                return request(app)
+                .patch("/api/comments/not-a-number")
+                .send({inc_votes: 100})
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+        })
+        })
     })
     describe("POST requests", () => {
         describe("POST /api/articles/:article_id/comments", () => {
@@ -461,6 +497,107 @@ describe("news-api", () => {
                 })
             })       
         })
+        describe("PATCH /api/comments/:comment_id", () => {
+            test("responds with status code 201 and the patched object in expected format", () => {
+                return request(app)
+                .patch("/api/comments/1")
+                .send({inc_votes: 100})
+                .expect(201)
+                .then(({body}) => {
+                    const { comment } = body
+                    expect(comment.comment_id).toBe(1)
+                    expect(comment.votes).toEqual(expect.any(Number))
+                    expect(comment.created_at).toEqual(expect.any(String))
+                    expect(comment.author).toEqual(expect.any(String))
+                    expect(comment.body).toEqual(expect.any(String))
+                    expect(comment.article_id).toEqual(expect.any(Number))
+                })
+            })
+            test("increments the comment votes by the correct amount", () => {
+                let previousVotes
+
+                return request(app)
+                .get("/api/comments/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { votes } = body.comment
+                    previousVotes = votes
+                })
+                .then(() => {
+                    return request(app)
+                    .patch("/api/comments/1")
+                    .send({inc_votes: 100})
+                    .expect(201)
+                    .then(({body}) => {
+                        const { votes } = body.comment
+                        expect(votes).toBe(previousVotes + 100)
+                     })
+                })
+            })
+            test("decrements the comment votes by the correct amount", () => {
+                let previousVotes
+
+                return request(app)
+                .get("/api/comments/1")
+                .expect(200)
+                .then(({body}) => {
+                    const { votes } = body.comment
+                    previousVotes = votes
+                })
+                .then(() => {
+                    return request(app)
+                    .patch("/api/comments/1")
+                    .send({inc_votes: -50})
+                    .expect(201)
+                    .then(({body}) => {
+                        const { votes } = body.comment
+                        expect(votes).toBe(previousVotes - 50)
+                     })
+                })
+            })
+            test("responds with status code 404 'not found' if there are no comments with a matching comment_id", () => {
+                return request(app)
+                .patch("/api/comments/9999")
+                .send({inc_votes: 100})
+                .expect(404)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("not found")
+                })
+            })
+            test("responds with status code 400 'bad request' when provided an comment_id or inc_votes that is not a number", () => {
+                return request(app)
+                .patch("/api/comments/not-a-number")
+                .send({inc_votes: 100})
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+                .then(() => {
+                    return request(app)
+                    .patch("/api/comments/1")
+                    .send({inc_votes: "not-a-number"})
+                    .expect(400)
+                    .then(({body}) => {
+                        const { msg } = body
+                        expect(msg).toBe("bad request")
+                    })
+                })
+            })
+            test("responds with status code 400 'bad request' if not provided with the key 'inc_votes'", () => {
+                return request(app)
+                .patch("/api/articles/1")
+                .send({})
+                .expect(400)
+                .then(({body}) => {
+                    const { msg } = body
+                    expect(msg).toBe("bad request")
+                })
+            })       
+        })
+
+
     })
     describe("DELETE requests", () => {
         describe("DELETE /api/comments/:comment_id", () => {
