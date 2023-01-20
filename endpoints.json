@@ -28,7 +28,8 @@
           "created_at": 1594329060000,
           "votes": 100,
           "article_img_url":
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "comment_count": 10
         }
       ]
     }
@@ -44,8 +45,10 @@
       "author": "icellusedkars",
       "body": "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
       "created_at": 1602828180000,
+      "votes": 100,
       "article_img_url":
-        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+      "comment_count": 10
     }
     }
   },
@@ -57,9 +60,9 @@
         {
           "comment_id": 1,
           "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          "votes": 16,
-          "author": "butter_bridge",
           "article_id": 9,
+          "author": "butter_bridge",
+          "votes": 16,
           "created_at": 1586179020000
         }
       ]
@@ -82,14 +85,18 @@
   "POST /api/articles/:article_id/comments": {
     "description": "posts a comment to the database with a given article_id",
     "queries": [],
+    "exampleBody": {
+      "username": "butter_bridge",
+      "body": "This is an example body."
+    },
     "exampleResponse": {
       "comments": [
         {
           "comment_id": 2,
-          "body": "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
-          "votes": 14,
-          "author": "butter_bridge",
+          "body": "This is an example body.",
           "article_id": 1,
+          "author": "butter_bridge",
+          "votes": 14,
           "created_at": 1604113380000
         }
       ]
@@ -98,15 +105,21 @@
   "PATCH /api/articles/:article_id": {
     "description": "updates the votes of an article with a given article_id",
     "queries": [],
+    "exampleBody": {
+      "inc_votes": 50
+    },
     "exampleResponse": {
-      "comments": {
-          "comment_id": 3,
-          "body": "Replacing the quiet elegance of the dark suit and tie with the casual indifference of these muted earth tones is a form of fashion suicide, but, uh, call me crazy — onyou it works.",
-          "votes": 150,
-          "author": "icellusedkars",
-          "article_id": 1,
-          "created_at": 1583025180000
-        }
+      "article":  {
+        "article_id": 3,
+        "title": "Eight pug gifs that remind me of mitch",
+        "topic": "mitch",
+        "author": "icellusedkars",
+        "body": "some gifs",
+        "created_at": 1604394720000,
+        "votes": 150,
+        "article_img_url":
+          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+      }
     }
   },
   "DELETE /api/comments/:comment_id": {
