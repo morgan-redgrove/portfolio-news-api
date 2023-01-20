@@ -167,4 +167,4 @@ const removeComment = (comment_id) => {
     })
 }
 
-module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, insertComment, updateArticlebyID, selectUsers, removeComment }
+module.exports = { selectTopics, selectArticles, selectArticleByID, selectCommentsByArticleId, selectUsers, insertComment, updateArticlebyID, removeComment }
