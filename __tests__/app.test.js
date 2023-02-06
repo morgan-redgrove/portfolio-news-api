@@ -314,7 +314,7 @@ describe("news-api", () => {
                     expect(msg).toBe("not found")
                 })
             })
-            test("responds with status code 400 'bad request' when provided an comment_id or inc_votes that is not a number", () => {
+            test("responds with status code 400 'bad request' when provided a comment_id that is not a number", () => {
                 return request(app)
                 .patch("/api/comments/not-a-number")
                 .send({inc_votes: 100})
