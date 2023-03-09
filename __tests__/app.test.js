@@ -62,6 +62,7 @@ describe("news-api", () => {
               expect(article.votes).toEqual(expect.any(Number));
               expect(article.article_img_url).toEqual(expect.any(String));
               expect(article.comment_count).toEqual(expect.any(String));
+              expect(article.vote_history).toEqual(expect.any(Array));
             });
           });
       });
@@ -175,6 +176,7 @@ describe("news-api", () => {
             expect(article.created_at).toEqual(expect.any(String));
             expect(article.votes).toEqual(expect.any(Number));
             expect(article.article_img_url).toEqual(expect.any(String));
+            expect(article.vote_history).toEqual(expect.any(Array));
           });
       });
       test("the returned object has a key of 'comment_count'", () => {
@@ -220,6 +222,7 @@ describe("news-api", () => {
               expect(comment.author).toEqual(expect.any(String));
               expect(comment.body).toEqual(expect.any(String));
               expect(comment.article_id).toBe(1);
+              expect(comment.vote_history).toEqual(expect.any(Array));
             });
           });
       });
@@ -306,6 +309,7 @@ describe("news-api", () => {
             expect(comment.author).toEqual(expect.any(String));
             expect(comment.body).toEqual(expect.any(String));
             expect(comment.article_id).toEqual(expect.any(Number));
+            expect(comment.vote_history).toEqual(expect.any(Array));
           });
       });
       test("responds with status code 404 'not found' if there are no comments with a matching comment_id", () => {
@@ -330,6 +334,7 @@ describe("news-api", () => {
       });
     });
   });
+
   describe("POST requests", () => {
     describe("POST /api/articles/:article_id/comments", () => {
       test("responds with status code 201 and the posted object in expected format", () => {
@@ -345,6 +350,7 @@ describe("news-api", () => {
             expect(comment.author).toBe("butter_bridge");
             expect(comment.body).toBe("test");
             expect(comment.article_id).toBe(1);
+            expect(comment.vote_history).toEqual(expect.any(Array));
           });
       });
       test("responds with status code 404 'not found' if no article found with article_id", () => {
@@ -399,12 +405,13 @@ describe("news-api", () => {
       });
     });
   });
+
   describe("PATCH requests", () => {
     describe("PATCH /api/articles/:article_id", () => {
       test("responds with status code 201 and the patched object in expected format", () => {
         return request(app)
           .patch("/api/articles/1")
-          .send({ inc_votes: 100 })
+          .send({ inc_votes: 100, username: "test" })
           .expect(201)
           .then(({ body }) => {
             const { article } = body;
@@ -416,6 +423,7 @@ describe("news-api", () => {
             expect(article.created_at).toEqual(expect.any(String));
             expect(article.votes).toEqual(expect.any(Number));
             expect(article.article_img_url).toEqual(expect.any(String));
+            expect(article.vote_history).toEqual(expect.any(Array));
           });
       });
       test("increments the article votes by the correct amount", () => {
@@ -431,7 +439,7 @@ describe("news-api", () => {
           .then(() => {
             return request(app)
               .patch("/api/articles/1")
-              .send({ inc_votes: 100 })
+              .send({ inc_votes: 100, username: "test" })
               .expect(201)
               .then(({ body }) => {
                 const { votes } = body.article;
@@ -452,7 +460,7 @@ describe("news-api", () => {
           .then(() => {
             return request(app)
               .patch("/api/articles/1")
-              .send({ inc_votes: -50 })
+              .send({ inc_votes: -50, username: "test" })
               .expect(201)
               .then(({ body }) => {
                 const { votes } = body.article;
@@ -460,10 +468,31 @@ describe("news-api", () => {
               });
           });
       });
+      test("appends the username to the vote_history array", () => {
+        let previousVoteHistory;
+
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            const { vote_history } = body.article;
+            previousVoteHistory = vote_history;
+          })
+          .then(() => {
+            return request(app)
+              .patch("/api/articles/1")
+              .send({ inc_votes: 100, username: "test" })
+              .expect(201)
+              .then(({ body }) => {
+                const { vote_history } = body.article;
+                expect(vote_history).toEqual([...previousVoteHistory, "test"]);
+              });
+          });
+      });
       test("responds with status code 404 'not found' if there are no articles with a matching article_id", () => {
         return request(app)
           .patch("/api/articles/9999")
-          .send({ inc_votes: 100 })
+          .send({ inc_votes: 100, username: "test" })
           .expect(404)
           .then(({ body }) => {
             const { msg } = body;
@@ -473,7 +502,7 @@ describe("news-api", () => {
       test("responds with status code 400 'bad request' when provided an article_id or inc_votes that is not a number", () => {
         return request(app)
           .patch("/api/articles/not-a-number")
-          .send({ inc_votes: 100 })
+          .send({ inc_votes: 100, username: "test" })
           .expect(400)
           .then(({ body }) => {
             const { msg } = body;
@@ -490,22 +519,33 @@ describe("news-api", () => {
               });
           });
       });
-      test("responds with status code 400 'bad request' if not provided with the key 'inc_votes'", () => {
+      test("responds with status code 400 'bad request' if not provided with the key 'inc_votes' or 'username'", () => {
         return request(app)
           .patch("/api/articles/1")
-          .send({})
+          .send({ username: "test" })
           .expect(400)
           .then(({ body }) => {
             const { msg } = body;
             expect(msg).toBe("bad request");
+          })
+          .then(() => {
+            return request(app)
+              .patch("/api/articles/1")
+              .send({ inc_votes: 100 })
+              .expect(400)
+              .then(({ body }) => {
+                const { msg } = body;
+                expect(msg).toBe("bad request");
+              });
           });
       });
     });
+
     describe("PATCH /api/comments/:comment_id", () => {
       test("responds with status code 201 and the patched object in expected format", () => {
         return request(app)
           .patch("/api/comments/1")
-          .send({ inc_votes: 100 })
+          .send({ inc_votes: 100, username: "test" })
           .expect(201)
           .then(({ body }) => {
             const { comment } = body;
@@ -515,6 +555,7 @@ describe("news-api", () => {
             expect(comment.author).toEqual(expect.any(String));
             expect(comment.body).toEqual(expect.any(String));
             expect(comment.article_id).toEqual(expect.any(Number));
+            expect(comment.vote_history).toEqual(["test"]);
           });
       });
       test("increments the comment votes by the correct amount", () => {
@@ -530,7 +571,7 @@ describe("news-api", () => {
           .then(() => {
             return request(app)
               .patch("/api/comments/1")
-              .send({ inc_votes: 100 })
+              .send({ inc_votes: 100, username: "test" })
               .expect(201)
               .then(({ body }) => {
                 const { votes } = body.comment;
@@ -551,11 +592,32 @@ describe("news-api", () => {
           .then(() => {
             return request(app)
               .patch("/api/comments/1")
-              .send({ inc_votes: -50 })
+              .send({ inc_votes: -50, username: "test" })
               .expect(201)
               .then(({ body }) => {
                 const { votes } = body.comment;
                 expect(votes).toBe(previousVotes - 50);
+              });
+          });
+      });
+      test("appends the username to the vote_history array", () => {
+        let previousVoteHistory;
+
+        return request(app)
+          .get("/api/comments/1")
+          .expect(200)
+          .then(({ body }) => {
+            const { vote_history } = body.comment;
+            previousVoteHistory = vote_history;
+          })
+          .then(() => {
+            return request(app)
+              .patch("/api/comments/1")
+              .send({ inc_votes: 50, username: "test" })
+              .expect(201)
+              .then(({ body }) => {
+                const { vote_history } = body.comment;
+                expect(vote_history).toEqual([...previousVoteHistory, "test"]);
               });
           });
       });
@@ -572,7 +634,7 @@ describe("news-api", () => {
       test("responds with status code 400 'bad request' when provided an comment_id or inc_votes that is not a number", () => {
         return request(app)
           .patch("/api/comments/not-a-number")
-          .send({ inc_votes: 100 })
+          .send({ inc_votes: 100, username: "test" })
           .expect(400)
           .then(({ body }) => {
             const { msg } = body;
@@ -589,18 +651,29 @@ describe("news-api", () => {
               });
           });
       });
-      test("responds with status code 400 'bad request' if not provided with the key 'inc_votes'", () => {
+      test("responds with status code 400 'bad request' if not provided with the key 'inc_votes' or 'username'", () => {
         return request(app)
-          .patch("/api/articles/1")
-          .send({})
+          .patch("/api/comments/1")
+          .send({ username: "test" })
           .expect(400)
           .then(({ body }) => {
             const { msg } = body;
             expect(msg).toBe("bad request");
+          })
+          .then(() => {
+            return request(app)
+              .patch("/api/comments/1")
+              .send({ inc_votes: 50 })
+              .expect(400)
+              .then(({ body }) => {
+                const { msg } = body;
+                expect(msg).toBe("bad request");
+              });
           });
       });
     });
   });
+
   describe("DELETE requests", () => {
     describe("DELETE /api/comments/:comment_id", () => {
       test("responds with status code 204", () => {

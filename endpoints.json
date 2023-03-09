@@ -2,6 +2,7 @@
   "GET /api": {
     "description": "serves up a json representation of all the available endpoints of the api"
   },
+
   "GET /api/topics": {
     "description": "serves an array of all topics",
     "queries": [],
@@ -14,6 +15,7 @@
       ]
     }
   },
+
   "GET /api/articles": {
     "description": "serves an array of all articles",
     "queries": ["topic", "sort_by", "order"],
@@ -34,11 +36,12 @@
       ]
     }
   },
+
   "GET /api/articles/:article_id": {
     "description": "serves the article for a given article_id",
     "queries": [],
     "exampleResponse": {
-    "article":     {
+    "article": {
       "article_id": 2,
       "title": "Sony Vaio; or, The Laptop",
       "topic": "mitch",
@@ -52,6 +55,7 @@
     }
     }
   },
+
   "GET /api/:article_id/comments": {
     "description": "serves an array of all the comments for a given article_id",
     "queries": [],
@@ -63,11 +67,29 @@
           "article_id": 9,
           "author": "butter_bridge",
           "votes": 16,
-          "created_at": 1586179020000
+          "created_at": 1586179020000,
+          "vote_history": []
         }
       ]
     }
   },
+
+  "GET /api/comments/:comment_id": {
+    "description": "serves the comment for a given comment_id",
+    "queries": [],
+    "exampleResponse": {
+      "comments": {
+          "comment_id": 1,
+          "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          "article_id": 9,
+          "author": "butter_bridge",
+          "votes": 16,
+          "created_at": 1586179020000,
+          "vote_history": []
+        }
+    }
+  },
+
   "GET /api/users": {
     "description": "serves an array of all users",
     "queries": [],
@@ -77,11 +99,13 @@
           "username": "butter_bridge",
           "name": "jonny",
           "avatar_url":
-            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "permission": true
         }
       ]
     }
   },
+
   "POST /api/articles/:article_id/comments": {
     "description": "posts a comment to the database with a given article_id",
     "queries": [],
@@ -90,18 +114,18 @@
       "body": "This is an example body."
     },
     "exampleResponse": {
-      "comments": [
-        {
+      "comment": {
           "comment_id": 2,
           "body": "This is an example body.",
           "article_id": 1,
           "author": "butter_bridge",
           "votes": 14,
-          "created_at": 1604113380000
-        }
-      ]
+          "created_at": 1604113380000,
+          "vote_history": []
+      }
     }
   },
+
   "PATCH /api/articles/:article_id": {
     "description": "updates the votes of an article with a given article_id",
     "queries": [],
@@ -122,6 +146,27 @@
       }
     }
   },
+
+  "PATCH /api/comments/:comment_id": {
+    "description": "updates the votes/vote_history of a comment with a given article_id",
+    "queries": [],
+    "exampleBody": {
+      "inc_votes": 50,
+      "username": "test"
+    },
+    "exampleResponse": {
+      "comment":  {
+        "comment_id": 2,
+        "body": "This is an example body.",
+        "article_id": 1,
+        "author": "butter_bridge",
+        "votes": 54,
+        "created_at": 1604113380000,
+        "vote_history": ["test"]
+      }
+    }
+  },
+  
   "DELETE /api/comments/:comment_id": {
     "description": "deletes a comment with a given comment_id",
     "queries": [],
