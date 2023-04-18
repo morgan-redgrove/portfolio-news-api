@@ -1,12 +1,10 @@
-# Northcoders News API
-
-### NC-News: https://nc-news-xe9m.onrender.com/api
+# Northcoders News API <br> https://nc-news-xe9m.onrender.com/api
 
 The NC-News API provides a collection of endpoints to access and interact with a database of news articles and user comments.
 This project uses a postgreSQL database and the express framework; with both hosted on ElephantSQL and Render respectively.
 A full list of endpoints is available at `/api`.
 
-## Installation and Setup
+## :wrench: Installation and Setup
 
 To clone this project please use the following command within your desired target directory:
 
@@ -56,7 +54,7 @@ PGDATABASE=nc_news
 PGDATABASE=nc_news_test
 ```
 
-## Testing
+## :test_tube: Testing
 
 Unit and end-to-end testing for this project is handled using the Jest testing framework.
 All required unit tests are collected into `utils.test.js`, whilst e-2-e tests can be found in `app.tests.js`.
@@ -66,7 +64,7 @@ $ npm test utils.test
 $ npm test app.test
 ```
 
-## Dependencies
+## :clipboard: Dependencies
 
 This project was built using Node `19.0.1` and npm `8.19.2`, it is recommended you run this project using these versions or higher.
 
