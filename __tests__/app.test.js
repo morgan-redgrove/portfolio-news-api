@@ -6,6 +6,7 @@ const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 const comments = require("../db/data/test-data/comments");
 const expectedEndpoints = require("../endpoints.json");
+const { checkHash } = require("../db/seeds/utils");
 
 beforeEach(() => {
   return seed(data);
@@ -279,11 +280,13 @@ describe("news-api", () => {
           .expect(200)
           .then(({ body }) => {
             const { user } = body;
-            console.log(user);
             expect(user.username).toBe("butter_bridge");
-            expect(user.name).toEqual(expect.any(String));
-            expect(user.avatar_url).toEqual(expect.any(String));
-            expect(user.permission).toEqual(expect.any(Boolean));
+            expect(user.name).toBe("jonny");
+            expect(user.avatar_url).toBe(
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+            );
+            expect(user.match).toBe(undefined);
+            expect(user.permission).toBe(true);
           });
       });
       test("responds with status code 404 'not found' if there are no users with a matching username", () => {
@@ -400,6 +403,64 @@ describe("news-api", () => {
               .then(({ body }) => {
                 const { msg } = body;
                 expect(msg).toBe("bad request");
+              });
+          });
+      });
+    });
+    describe("POST /api/users/:username", () => {
+      test("responds with status code 201 and the the posted user in expected format", () => {
+        return request(app)
+          .post("/api/users/new-user")
+          .send({ name: "test", password: "test", avatar_url: "test" })
+          .expect(201)
+          .then(({ body: { user } }) => {
+            const { username, password, name, avatar_url, permission } = user;
+            expect(username).toBe("new-user");
+            expect(password).toEqual(expect.any(String));
+            expect(password.length).toBe(60);
+            expect(password).not.toBe("test");
+            expect(name).toBe("test");
+            expect(avatar_url).toBe("test");
+            expect(permission).toEqual(expect.any(Boolean));
+          });
+      });
+      test("responds with status code 400 'bad request' if the username already exists", () => {
+        return request(app)
+          .post("/api/users/butter_bridge")
+          .send({ name: "test", password: "test", avatar_url: "test" })
+          .expect(400)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("bad request");
+          });
+      });
+      test("responds with status code 400 'bad request' if not provided with keys of 'password', 'name' and 'avatar_url'", () => {
+        return request(app)
+          .post("/api/users/new-user")
+          .send({ password: "test" })
+          .expect(400)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("bad request");
+          })
+          .then(() => {
+            return request(app)
+              .post("/api/users/new-user")
+              .send({ name: "test" })
+              .expect(400)
+              .then(({ body }) => {
+                const { msg } = body;
+                expect(msg).toBe("bad request");
+              })
+              .then(() => {
+                return request(app)
+                  .post("/api/users/new-user")
+                  .send({ avatar_url: "test" })
+                  .expect(400)
+                  .then(({ body }) => {
+                    const { msg } = body;
+                    expect(msg).toBe("bad request");
+                  });
               });
           });
       });
@@ -540,7 +601,6 @@ describe("news-api", () => {
           });
       });
     });
-
     describe("PATCH /api/comments/:comment_id", () => {
       test("responds with status code 201 and the patched object in expected format", () => {
         return request(app)
@@ -669,6 +729,87 @@ describe("news-api", () => {
                 const { msg } = body;
                 expect(msg).toBe("bad request");
               });
+          });
+      });
+    });
+    describe("PATCH /api/users/:username", () => {
+      test("responds with status code 201 and the patched object in expected format", () => {
+        return request(app)
+          .patch("/api/users/butter_bridge")
+          .send({
+            password: "new_password",
+            name: "new_name",
+            avatar_url: "new_url",
+            permission: false,
+          })
+          .expect(201)
+          .then(({ body }) => {
+            const { user } = body;
+            expect(user.name).toBe("new_name");
+            expect(user.avatar_url).toBe("new_url");
+            expect(user.permission).toBe(false);
+            return checkHash("new_password", user.password);
+          })
+          .then((match) => {
+            expect(match).toBe(true);
+          });
+      });
+      test("responds with status code 404 'not found' if there are no users with a matching username", () => {
+        return request(app)
+          .patch("/api/users/not-a-user")
+          .send({
+            password: "new_password",
+            name: "new_name",
+            avatar_url: "new_url",
+            permission: false,
+          })
+          .expect(404)
+          .then(({ body }) => {
+            console.log(body);
+            const { msg } = body;
+            expect(msg).toBe("not found");
+          });
+      });
+      test("responds with status code 400 'bad request' if not provided with at least one relevant key", () => {
+        return request(app)
+          .patch("/api/users/butter_bridge")
+          .send({})
+          .expect(400)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("bad request");
+          });
+      });
+    });
+    describe("PATCH /api/login", () => {
+      test("responds with statis code 201 and the object in the expected format", () => {
+        return request(app)
+          .patch("/api/login")
+          .send({ username: "butter_bridge", password: "test" })
+          .expect(201)
+          .then(({ body }) => {
+            const { match } = body;
+            expect(match).toBe(true);
+          });
+      });
+      test("responds with status code 404 'not found' if there are no users with a matching username", () => {
+        return request(app)
+          .patch("/api/login")
+          .send({ username: "not-a-user", password: "test" })
+          .expect(404)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("not found");
+          });
+      });
+      test("responds with status code 400 'bad request' if not provided with the key 'password'", () => {
+        return request(app)
+          .patch("/api/login")
+          .send({ username: "butter_bridge" })
+          .expect(400)
+          .then(({ body }) => {
+            const { msg } = body;
+            expect(msg).toBe("bad request");
           });
       });
     });

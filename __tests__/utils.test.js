@@ -2,6 +2,9 @@ const {
   convertTimestampToDate,
   createRef,
   formatComments,
+  hash,
+  match,
+  checkHash,
 } = require("../db/seeds/utils");
 
 describe("convertTimestampToDate", () => {
@@ -100,5 +103,50 @@ describe("formatComments", () => {
     const comments = [{ created_at: timestamp }];
     const formattedComments = formatComments(comments, {});
     expect(formattedComments[0].created_at).toEqual(new Date(timestamp));
+  });
+});
+
+describe("hash", () => {
+  test("returns a hash", () => {
+    return hash("test").then((hash) => {
+      expect(hash).toEqual(expect.any(String));
+      expect(hash.length).toBe(60);
+      return checkHash("test", hash).then((match) => {
+        expect(match).toBe(true);
+      });
+    });
+  });
+});
+
+describe("checkHash", () => {
+  test("returns the correct boolean value when passed a string and a hash value to compare", () => {
+    return checkHash(
+      "test",
+      "$2a$05$lltEGBZEbZmGfwufgXDBJuEBWy3ITkmTQZvX3JmJqckjyzUShKSk2"
+    )
+      .then((match) => {
+        expect(match).toBe(true);
+      })
+      .then(() => {
+        return checkHash("test", "");
+      })
+      .then((match) => {
+        expect(match).toBe(false);
+      })
+      .then(() => {
+        return checkHash(
+          "",
+          "$2a$05$lltEGBZEbZmGfwufgXDBJuEBWy3ITkmTQZvX3JmJqckjyzUShKSk2"
+        );
+      })
+      .then((match) => {
+        expect(match).toBe(false);
+      })
+      .then(() => {
+        return checkHash("", "");
+      })
+      .then((match) => {
+        expect(match).toBe(false);
+      });
   });
 });

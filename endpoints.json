@@ -7,10 +7,10 @@
     "description": "serves an array of all topics",
     "queries": [],
     "exampleResponse": {
-      "topics": [ 
+      "topics": [
         {
-        "description": "The man, the Mitch, the legend",
-        "slug": "mitch"
+          "description": "The man, the Mitch, the legend",
+          "slug": "mitch"
         }
       ]
     }
@@ -29,8 +29,7 @@
           "body": "I find this existence challenging",
           "created_at": 1594329060000,
           "votes": 100,
-          "article_img_url":
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           "comment_count": 10
         }
       ]
@@ -41,22 +40,21 @@
     "description": "serves the article for a given article_id",
     "queries": [],
     "exampleResponse": {
-    "article": {
-      "article_id": 2,
-      "title": "Sony Vaio; or, The Laptop",
-      "topic": "mitch",
-      "author": "icellusedkars",
-      "body": "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
-      "created_at": 1602828180000,
-      "votes": 100,
-      "article_img_url":
-        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-      "comment_count": 10
-    }
+      "article": {
+        "article_id": 2,
+        "title": "Sony Vaio; or, The Laptop",
+        "topic": "mitch",
+        "author": "icellusedkars",
+        "body": "Call me Mitchell. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would buy a laptop about a little and see the codey part of the world. It is a way I have of driving off the spleen and regulating the circulation. Whenever I find myself growing grim about the mouth; whenever it is a damp, drizzly November in my soul; whenever I find myself involuntarily pausing before coffin warehouses, and bringing up the rear of every funeral I meet; and especially whenever my hypos get such an upper hand of me, that it requires a strong moral principle to prevent me from deliberately stepping into the street, and methodically knocking people’s hats off—then, I account it high time to get to coding as soon as I can. This is my substitute for pistol and ball. With a philosophical flourish Cato throws himself upon his sword; I quietly take to the laptop. There is nothing surprising in this. If they but knew it, almost all men in their degree, some time or other, cherish very nearly the same feelings towards the the Vaio with me.",
+        "created_at": 1602828180000,
+        "votes": 100,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "comment_count": 10
+      }
     }
   },
 
-  "GET /api/:article_id/comments": {
+  "GET /api/articles/:article_id/comments": {
     "description": "serves an array of all the comments for a given article_id",
     "queries": [],
     "exampleResponse": {
@@ -79,14 +77,14 @@
     "queries": [],
     "exampleResponse": {
       "comments": {
-          "comment_id": 1,
-          "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
-          "article_id": 9,
-          "author": "butter_bridge",
-          "votes": 16,
-          "created_at": 1586179020000,
-          "vote_history": []
-        }
+        "comment_id": 1,
+        "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        "article_id": 9,
+        "author": "butter_bridge",
+        "votes": 16,
+        "created_at": 1586179020000,
+        "vote_history": []
+      }
     }
   },
 
@@ -94,13 +92,28 @@
     "description": "serves an array of all users",
     "queries": [],
     "exampleResponse": {
-      "comments": [
+      "user": [
         {
           "username": "butter_bridge",
           "name": "jonny",
-          "avatar_url":
-            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
           "permission": true
+        }
+      ]
+    }
+  },
+
+  "GET /api/users/:username": {
+    "description": "serves an array of all users",
+    "queries": ["password"],
+    "exampleResponse": {
+      "user": [
+        {
+          "username": "butter_bridge",
+          "name": "jonny",
+          "avatar_url": "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          "permission": true,
+          "match": false
         }
       ]
     }
@@ -115,13 +128,13 @@
     },
     "exampleResponse": {
       "comment": {
-          "comment_id": 2,
-          "body": "This is an example body.",
-          "article_id": 1,
-          "author": "butter_bridge",
-          "votes": 14,
-          "created_at": 1604113380000,
-          "vote_history": []
+        "comment_id": 2,
+        "body": "This is an example body.",
+        "article_id": 1,
+        "author": "butter_bridge",
+        "votes": 14,
+        "created_at": 1604113380000,
+        "vote_history": []
       }
     }
   },
@@ -133,7 +146,7 @@
       "inc_votes": 50
     },
     "exampleResponse": {
-      "article":  {
+      "article": {
         "article_id": 3,
         "title": "Eight pug gifs that remind me of mitch",
         "topic": "mitch",
@@ -141,8 +154,7 @@
         "body": "some gifs",
         "created_at": 1604394720000,
         "votes": 150,
-        "article_img_url":
-          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
     }
   },
@@ -155,7 +167,7 @@
       "username": "test"
     },
     "exampleResponse": {
-      "comment":  {
+      "comment": {
         "comment_id": 2,
         "body": "This is an example body.",
         "article_id": 1,
@@ -166,7 +178,27 @@
       }
     }
   },
-  
+
+  "PATCH /api/users/:username": {
+    "description": "updates the password, name or avatar_url of a user with a given username",
+    "queries": [],
+    "exampleBody": {
+      "password": "new_password",
+      "name": "new_name",
+      "avatar_url": "new_url",
+      "permission": false
+    },
+    "exampleResponse": {
+      "user": {
+        "username": "butter_bridge",
+        "password": "$2a$05$xKxxeaLLx7X.7NapIhHqweeSa3eNDwI9dEaFniRWyIHWjcV2dCpR.",
+        "name": "new_name",
+        "avatar_url": "new_url",
+        "permission": false
+      }
+    }
+  },
+
   "DELETE /api/comments/:comment_id": {
     "description": "deletes a comment with a given comment_id",
     "queries": [],

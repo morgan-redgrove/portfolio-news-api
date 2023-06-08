@@ -4,6 +4,7 @@ const {
   convertTimestampToDate,
   createRef,
   formatComments,
+  hash,
 } = require("./utils");
 
 const seed = ({ topicData, userData, articleData, commentData }) => {
@@ -14,6 +15,9 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
     })
     .then(() => {
       return db.query(`DROP TABLE IF EXISTS users;`);
+    })
+    .then(() => {
+      return db.query(`DROP TABLE IF EXISTS passwords;`);
     })
     .then(() => {
       return db.query(`DROP TABLE IF EXISTS topics;`);
@@ -28,8 +32,9 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       const usersTablePromise = db.query(`
       CREATE TABLE users (
         username VARCHAR PRIMARY KEY,
+        password VARCHAR(60) NOT NULL,
         name VARCHAR NOT NULL,
-        avatar_url VARCHAR,
+        avatar_url VARCHAR NOT NULL,
         permission BOOL DEFAULT true
       );`);
 
@@ -66,19 +71,25 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
         "INSERT INTO topics (slug, description) VALUES %L;",
         topicData.map(({ slug, description }) => [slug, description])
       );
-      const topicsPromise = db.query(insertTopicsQueryStr);
 
-      const insertUsersQueryStr = format(
-        "INSERT INTO users ( username, name, avatar_url) VALUES %L;",
-        userData.map(({ username, name, avatar_url }) => [
-          username,
-          name,
-          avatar_url,
-        ])
+      return db.query(insertTopicsQueryStr);
+    })
+    .then(() => {
+      return Promise.all(
+        userData.map(({ username, password, name, avatar_url }) => {
+          return hash(password).then((hash) => {
+            return [username, hash, name, avatar_url];
+          });
+        })
       );
-      const usersPromise = db.query(insertUsersQueryStr);
+    })
+    .then((formattedUserData) => {
+      const insertUsersQueryStr = format(
+        "INSERT INTO users ( username, password, name, avatar_url) VALUES %L;",
+        formattedUserData
+      );
 
-      return Promise.all([topicsPromise, usersPromise]);
+      return db.query(insertUsersQueryStr);
     })
     .then(() => {
       const formattedArticleData = articleData.map(convertTimestampToDate);
