@@ -1,3 +1,5 @@
+const bcrypt = require("bcryptjs");
+
 exports.convertTimestampToDate = ({ created_at, ...otherProperties }) => {
   if (!created_at) return { ...otherProperties };
   return { created_at: new Date(created_at), ...otherProperties };
@@ -19,4 +21,23 @@ exports.formatComments = (comments, idLookup) => {
       ...this.convertTimestampToDate(restOfComment),
     };
   });
+};
+
+exports.hash = (password) => {
+  return bcrypt
+    .hash(password, 5)
+    .then((hash) => {
+      return hash;
+    })
+    .catch((err) => console.error(err.message));
+};
+
+exports.checkHash = (password, hash) => {
+  return bcrypt
+    .compare(password, hash)
+    .then((match) => {
+      // console.log("Match: ", match);
+      return match;
+    })
+    .catch((err) => console.error(err.message));
 };

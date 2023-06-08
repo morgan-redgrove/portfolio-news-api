@@ -1,6 +1,5 @@
 const db = require("../db/connection");
 const format = require("pg-format");
-const { response } = require("./app");
 
 const selectTopics = () => {
   return db
@@ -25,11 +24,25 @@ const checkIfExists = (table, column, value) => {
   );
 
   return db.query(queryString, [value]).then((result) => {
-    if (!result.rows.length) {
-      return Promise.reject({ status: 404, msg: "not found" });
-    }
+    return !!result.rows.length;
   });
 };
+
+// const checkIfHashExists = (table, column, value) => {
+//   const queryString = format(
+//     `
+//     SELECT * from %I
+//     WHERE %I = crypt($1, %I)
+//     `,
+//     table,
+//     column,
+//     column
+//   );
+
+//   return db.query(queryString, [value]).then((result) => {
+//     return !!result.rows.length;
+//   });
+// };
 
 const selectArticles = (query) => {
   const topic = query.topic;
@@ -59,17 +72,23 @@ const selectArticles = (query) => {
     `);
 
   if (topic) {
-    return checkIfExists("articles", "topic", topic).then(() => {
-      queryString += `WHERE topic = $1\nGROUP BY articles.article_id\n`;
-      if (greenLight) {
-        queryString += `ORDER BY ${sort_by} ${order}`;
-      } else {
-        return Promise.reject({ status: 400, msg: "bad request" });
-      }
-      return db.query(queryString, [topic]).then((result) => {
-        return result.rows;
+    return checkIfExists("articles", "topic", topic)
+      .then((exists) => {
+        if (!exists) {
+          return Promise.reject({ status: 404, msg: "not found" });
+        }
+      })
+      .then(() => {
+        queryString += `WHERE topic = $1\nGROUP BY articles.article_id\n`;
+        if (greenLight) {
+          queryString += `ORDER BY ${sort_by} ${order}`;
+        } else {
+          return Promise.reject({ status: 400, msg: "bad request" });
+        }
+        return db.query(queryString, [topic]).then((result) => {
+          return result.rows;
+        });
       });
-    });
   } else {
     queryString += `GROUP BY articles.article_id\n`;
     if (greenLight) {
@@ -138,13 +157,14 @@ const selectUsers = () => {
 };
 
 const selectUserById = (username) => {
-  return checkIfExists("users", "username", username).then(() => {
+  return checkIfExists("users", "username", username).then((exists) => {
+    if (!exists) {
+      return Promise.reject({ status: 404, msg: "not found" });
+    }
+
     return db
       .query(
-        `
-            SELECT * FROM users
-            WHERE username = $1
-        `,
+        `SELECT username, name, avatar_url, permission FROM users WHERE username = $1`,
         [username]
       )
       .then((result) => {
@@ -154,7 +174,11 @@ const selectUserById = (username) => {
 };
 
 const selectCommentById = (comment_id) => {
-  return checkIfExists("comments", "comment_id", comment_id).then(() => {
+  return checkIfExists("comments", "comment_id", comment_id).then((exists) => {
+    if (!exists) {
+      return Promise.reject({ status: 404, msg: "not found" });
+    }
+
     return db
       .query(
         `
@@ -171,7 +195,11 @@ const selectCommentById = (comment_id) => {
 
 const insertComment = (username, body, article_id) => {
   return checkIfExists("articles", "article_id", article_id)
-    .then(() => {
+    .then((exists) => {
+      if (!exists) {
+        return Promise.reject({ status: 404, msg: "not found" });
+      }
+
       return db.query(
         `
             INSERT INTO comments (
@@ -194,23 +222,55 @@ const insertComment = (username, body, article_id) => {
     });
 };
 
+const insertUserById = (username, password, name, avatar_url) => {
+  return checkIfExists("users", "username", username).then((exists) => {
+    if (exists) {
+      return Promise.reject({ status: 400, msg: "bad request" });
+    }
+
+    return db
+      .query(
+        `
+      INSERT INTO users (
+          username,
+          password,
+          name,
+          avatar_url  
+      )
+      VALUES (
+          $1,
+          crypt($2, gen_salt('bf', 5)),
+          $3,
+          $4
+      )
+      RETURNING *
+    `,
+        [username, password, name, avatar_url]
+      )
+      .then((result) => {
+        return result.rows[0];
+      });
+  });
+};
+
 const updateArticlebyId = (inc_votes, username, article_id) => {
   return checkIfExists("articles", "article_id", article_id)
-    .then(() => {
-      if (!username) {
+    .then((exists) => {
+      if (!exists) {
+        return Promise.reject({ status: 404, msg: "not found" });
+      } else if (!inc_votes || !username) {
         return Promise.reject({ status: 400, msg: "bad request" });
       }
-    })
-    .then(() => {
+
       return db.query(
         `
-                UPDATE articles
-                SET
-                votes = votes + $1,
-                vote_history = array_append(vote_history, $2)
-                WHERE article_id = $3
-                RETURNING *
-            `,
+          UPDATE articles
+          SET
+          votes = votes + $1,
+          vote_history = array_append(vote_history, $2)
+          WHERE article_id = $3
+          RETURNING *
+        `,
         [inc_votes, username, article_id]
       );
     })
@@ -221,21 +281,22 @@ const updateArticlebyId = (inc_votes, username, article_id) => {
 
 const updateCommentById = (inc_votes, username, comment_id) => {
   return checkIfExists("comments", "comment_id", comment_id)
-    .then(() => {
-      if (!username) {
+    .then((exists) => {
+      if (!exists) {
+        return Promise.reject({ status: 404, msg: "not found" });
+      } else if (!inc_votes || !username) {
         return Promise.reject({ status: 400, msg: "bad request" });
       }
-    })
-    .then(() => {
+
       return db.query(
         `
-                UPDATE comments
-                SET
-                votes = votes + $1,
-                vote_history = array_append(vote_history, $2)
-                WHERE comment_id = $3
-                RETURNING *
-            `,
+          UPDATE comments
+          SET
+          votes = votes + $1,
+          vote_history = array_append(vote_history, $2)
+          WHERE comment_id = $3
+          RETURNING *
+      `,
         [inc_votes, username, comment_id]
       );
     })
@@ -244,8 +305,59 @@ const updateCommentById = (inc_votes, username, comment_id) => {
     });
 };
 
+const updateUserById = (username, password, name, avatar_url, permission) => {
+  return checkIfExists("users", "username", username).then((exists) => {
+    if (!exists) {
+      return Promise.reject({ status: 404, msg: "not found" });
+    } else if (!password && !name && !avatar_url && !permission) {
+      return Promise.reject({ status: 400, msg: "bad request" });
+    }
+
+    return db
+      .query(
+        `
+            UPDATE users
+            SET
+            password = COALESCE(crypt($2, gen_salt('bf', 5)), password),
+            name = COALESCE($3, name),
+            avatar_url = COALESCE($4, avatar_url),
+            permission = COALESCE($5, permission)
+            WHERE username = $1
+            RETURNING *
+          `,
+        [username, password, name, avatar_url, permission]
+      )
+      .then((result) => {
+        return result.rows[0];
+      });
+  });
+};
+
+const validateLogin = (username, password) => {
+  return checkIfExists("users", "username", username).then((exists) => {
+    if (!exists) {
+      return Promise.reject({ status: 404, msg: "not found" });
+    } else if (!password) {
+      return Promise.reject({ status: 400, msg: "bad request" });
+    }
+
+    return db
+      .query(
+        `SELECT (password = crypt($2, password)) AS match  FROM users WHERE username = $1`,
+        [username, password]
+      )
+      .then((result) => {
+        return result.rows[0];
+      });
+  });
+};
+
 const removeComment = (comment_id) => {
-  return checkIfExists("comments", "comment_id", comment_id).then(() => {
+  return checkIfExists("comments", "comment_id", comment_id).then((exists) => {
+    if (!exists) {
+      return Promise.reject({ status: 404, msg: "not found" });
+    }
+
     return db.query(
       `
             DELETE FROM comments
@@ -265,7 +377,10 @@ module.exports = {
   selectUserById,
   selectCommentById,
   insertComment,
+  insertUserById,
   updateArticlebyId,
   updateCommentById,
+  validateLogin,
+  updateUserById,
   removeComment,
 };

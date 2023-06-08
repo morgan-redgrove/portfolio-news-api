@@ -59,10 +59,15 @@ PGDATABASE=nc_news_test
 Unit and end-to-end testing for this project is handled using the Jest testing framework.
 All required unit tests are collected into `utils.test.js`, whilst e-2-e tests can be found in `app.tests.js`.
 These can be ran in the terminal using npm:
+
 ```shell
 $ npm test utils.test
 $ npm test app.test
 ```
+
+## :lock: Security
+
+All stored user passwords are encrypted with the blowfish cypher utilising `bcrypt.js` for utility functions and `pgcrypto` on the database. Caution however is advised when submitting a username and password, this API is intended for educational and demonstration purposes only.
 
 ## :clipboard: Dependencies
 
@@ -70,21 +75,22 @@ This project was built using Node `19.0.1` and npm `8.19.2`, it is recommended y
 
 Below is a list of dependencies and minimum version requirements for this project:
 
-***Production***
+**_Production_**
 
-| Package | Version |
-| --- | --- |
-| dotenv | 16.0.0 |
-| express | 4.18.2 |
-| pg  | 8.7.3 |
-| pg-format | 1.0.4 |
+| Package   | Version |
+| --------- | ------- |
+| dotenv    | 16.0.0  |
+| express   | 4.18.2  |
+| pg        | 8.7.3   |
+| pg-format | 1.0.4   |
+| bcryptjs  | 2.4.3   |
 
-***Development only***
+**_Development only_**
 
-| Package | Version |
-| --- | --- |
-| husky | 8.0.2 |
-| jest | 27.5.1 |
-| jest-extended | 2.0.0 |
-| jest-sorted | 1.0.14 |
-| supertest | 6.3.3 |
+| Package       | Version |
+| ------------- | ------- |
+| husky         | 8.0.2   |
+| jest          | 27.5.1  |
+| jest-extended | 2.0.0   |
+| jest-sorted   | 1.0.14  |
+| supertest     | 6.3.3   |

@@ -7,12 +7,14 @@ const {
   selectUserById,
   selectCommentById,
   insertComment,
+  insertUserById,
   updateArticlebyId,
   updateCommentById,
+  updateUserById,
+  validateLogin,
   removeComment,
 } = require("./app.model");
 const endpoints = require("../endpoints.json");
-const { response } = require("./app");
 
 const getEndpoints = (request, response) => {
   response.status(200).send({ endpoints });
@@ -60,7 +62,7 @@ const getUsers = (request, response, next) => {
     });
 };
 
-const getUserbyId = (request, response, next) => {
+const getUserById = (request, response, next) => {
   const { username } = request.params;
   selectUserById(username)
     .then((user) => {
@@ -105,6 +107,18 @@ const postComment = (request, response, next) => {
     });
 };
 
+const postUserById = (request, response, next) => {
+  const { username } = request.params;
+  const { password, name, avatar_url } = request.body;
+  insertUserById(username, password, name, avatar_url)
+    .then((user) => {
+      response.status(201).send({ user });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 const patchArticleById = (request, response, next) => {
   const { inc_votes, username } = request.body;
   const { article_id } = request.params;
@@ -117,12 +131,37 @@ const patchArticleById = (request, response, next) => {
     });
 };
 
-const patchCommentByID = (request, response, next) => {
+const patchCommentById = (request, response, next) => {
   const { inc_votes, username } = request.body;
   const { comment_id } = request.params;
   updateCommentById(inc_votes, username, comment_id)
     .then((comment) => {
       response.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+const patchUserById = (request, response, next) => {
+  const { username } = request.params;
+  const { password, name, avatar_url, permission } = request.body;
+
+  updateUserById(username, password, name, avatar_url, permission)
+    .then((user) => {
+      response.status(201).send({ user });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+const patchLogin = (request, response, next) => {
+  const { username, password } = request.body;
+
+  validateLogin(username, password)
+    .then((match) => {
+      response.status(201).send(match);
     })
     .catch((err) => {
       next(err);
@@ -147,10 +186,13 @@ module.exports = {
   getArticleById,
   getCommentsByArticleId,
   getUsers,
-  getUserbyId,
+  getUserById,
   getCommentById,
   postComment,
+  postUserById,
   patchArticleById,
-  patchCommentByID,
+  patchCommentById,
+  patchUserById,
+  patchLogin,
   deleteComment,
 };
